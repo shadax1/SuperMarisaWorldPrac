@@ -72,7 +72,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(60, 13);
             this.label1.TabIndex = 27;
-            this.label1.Text = "Version 1.3";
+            this.label1.Text = "Version 1.4";
             // 
             // label2
             // 
@@ -85,6 +85,7 @@
             // 
             // AboutBox1
             // 
+            this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(615, 307);

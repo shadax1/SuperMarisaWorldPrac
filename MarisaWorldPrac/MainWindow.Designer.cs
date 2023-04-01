@@ -39,11 +39,13 @@
             this.buttonHotkeys = new System.Windows.Forms.Button();
             this.buttonHelp = new System.Windows.Forms.Button();
             this.groupFreeze = new System.Windows.Forms.GroupBox();
+            this.checkRespawn = new System.Windows.Forms.CheckBox();
+            this.numericLives = new System.Windows.Forms.NumericUpDown();
             this.numericTime = new System.Windows.Forms.NumericUpDown();
             this.numericScore = new System.Windows.Forms.NumericUpDown();
             this.numericStars = new System.Windows.Forms.NumericUpDown();
             this.checkScore = new System.Windows.Forms.CheckBox();
-            this.checkSpeedFly = new System.Windows.Forms.CheckBox();
+            this.checkPSpeedFly = new System.Windows.Forms.CheckBox();
             this.checkPowerup = new System.Windows.Forms.CheckBox();
             this.groupCoordinates = new System.Windows.Forms.GroupBox();
             this.labelStoredY = new System.Windows.Forms.Label();
@@ -71,7 +73,12 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.labelStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.buttonRescan = new System.Windows.Forms.Button();
+            this.buttonNextScreen = new System.Windows.Forms.Button();
+            this.buttonPreviousScreen = new System.Windows.Forms.Button();
+            this.checkSPREADMYWINGS = new System.Windows.Forms.CheckBox();
+            this.buttonShmup = new System.Windows.Forms.Button();
             this.groupFreeze.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericLives)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericScore)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericStars)).BeginInit();
@@ -84,7 +91,7 @@
             // 
             this.checkLives.AutoSize = true;
             this.checkLives.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkLives.Location = new System.Drawing.Point(15, 82);
+            this.checkLives.Location = new System.Drawing.Point(15, 90);
             this.checkLives.Name = "checkLives";
             this.checkLives.Size = new System.Drawing.Size(51, 17);
             this.checkLives.TabIndex = 2;
@@ -156,9 +163,9 @@
             // 
             // buttonHotkeys
             // 
-            this.buttonHotkeys.Location = new System.Drawing.Point(225, 171);
+            this.buttonHotkeys.Location = new System.Drawing.Point(225, 271);
             this.buttonHotkeys.Name = "buttonHotkeys";
-            this.buttonHotkeys.Size = new System.Drawing.Size(114, 43);
+            this.buttonHotkeys.Size = new System.Drawing.Size(75, 23);
             this.buttonHotkeys.TabIndex = 13;
             this.buttonHotkeys.Text = "Hotkeys";
             this.buttonHotkeys.UseVisualStyleBackColor = true;
@@ -166,9 +173,9 @@
             // 
             // buttonHelp
             // 
-            this.buttonHelp.Location = new System.Drawing.Point(346, 171);
+            this.buttonHelp.Location = new System.Drawing.Point(385, 271);
             this.buttonHelp.Name = "buttonHelp";
-            this.buttonHelp.Size = new System.Drawing.Size(114, 43);
+            this.buttonHelp.Size = new System.Drawing.Size(75, 23);
             this.buttonHelp.TabIndex = 14;
             this.buttonHelp.Text = "About/Help";
             this.buttonHelp.UseVisualStyleBackColor = true;
@@ -176,11 +183,15 @@
             // 
             // groupFreeze
             // 
+            this.groupFreeze.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupFreeze.Controls.Add(this.checkSPREADMYWINGS);
+            this.groupFreeze.Controls.Add(this.checkRespawn);
+            this.groupFreeze.Controls.Add(this.numericLives);
             this.groupFreeze.Controls.Add(this.numericTime);
             this.groupFreeze.Controls.Add(this.numericScore);
             this.groupFreeze.Controls.Add(this.numericStars);
             this.groupFreeze.Controls.Add(this.checkScore);
-            this.groupFreeze.Controls.Add(this.checkSpeedFly);
+            this.groupFreeze.Controls.Add(this.checkPSpeedFly);
             this.groupFreeze.Controls.Add(this.checkPowerup);
             this.groupFreeze.Controls.Add(this.checkLives);
             this.groupFreeze.Controls.Add(this.checkTime);
@@ -188,10 +199,39 @@
             this.groupFreeze.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupFreeze.Location = new System.Drawing.Point(225, 12);
             this.groupFreeze.Name = "groupFreeze";
-            this.groupFreeze.Size = new System.Drawing.Size(235, 106);
+            this.groupFreeze.Size = new System.Drawing.Size(235, 206);
             this.groupFreeze.TabIndex = 15;
             this.groupFreeze.TabStop = false;
-            this.groupFreeze.Text = "Freeze values";
+            this.groupFreeze.Text = "Freeze/set values";
+            // 
+            // checkRespawn
+            // 
+            this.checkRespawn.AutoSize = true;
+            this.checkRespawn.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.25F);
+            this.checkRespawn.Location = new System.Drawing.Point(6, 183);
+            this.checkRespawn.Name = "checkRespawn";
+            this.checkRespawn.Size = new System.Drawing.Size(225, 17);
+            this.checkRespawn.TabIndex = 23;
+            this.checkRespawn.Text = "Respawn at stored coordinates after death";
+            this.checkRespawn.UseVisualStyleBackColor = true;
+            // 
+            // numericLives
+            // 
+            this.numericLives.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericLives.Location = new System.Drawing.Point(15, 113);
+            this.numericLives.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.numericLives.Name = "numericLives";
+            this.numericLives.Size = new System.Drawing.Size(50, 20);
+            this.numericLives.TabIndex = 22;
+            this.numericLives.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             // 
             // numericTime
             // 
@@ -243,22 +283,22 @@
             this.checkScore.Text = "Score";
             this.checkScore.UseVisualStyleBackColor = true;
             // 
-            // checkSpeedFly
+            // checkPSpeedFly
             // 
-            this.checkSpeedFly.AutoSize = true;
-            this.checkSpeedFly.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkSpeedFly.Location = new System.Drawing.Point(146, 82);
-            this.checkSpeedFly.Name = "checkSpeedFly";
-            this.checkSpeedFly.Size = new System.Drawing.Size(81, 17);
-            this.checkSpeedFly.TabIndex = 14;
-            this.checkSpeedFly.Text = "P-speed+fly";
-            this.checkSpeedFly.UseVisualStyleBackColor = true;
+            this.checkPSpeedFly.AutoSize = true;
+            this.checkPSpeedFly.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkPSpeedFly.Location = new System.Drawing.Point(86, 116);
+            this.checkPSpeedFly.Name = "checkPSpeedFly";
+            this.checkPSpeedFly.Size = new System.Drawing.Size(145, 17);
+            this.checkPSpeedFly.TabIndex = 14;
+            this.checkPSpeedFly.Text = "Infinite P-speed and flight";
+            this.checkPSpeedFly.UseVisualStyleBackColor = true;
             // 
             // checkPowerup
             // 
             this.checkPowerup.AutoSize = true;
             this.checkPowerup.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkPowerup.Location = new System.Drawing.Point(72, 82);
+            this.checkPowerup.Location = new System.Drawing.Point(86, 90);
             this.checkPowerup.Name = "checkPowerup";
             this.checkPowerup.Size = new System.Drawing.Size(71, 17);
             this.checkPowerup.TabIndex = 13;
@@ -267,6 +307,8 @@
             // 
             // groupCoordinates
             // 
+            this.groupCoordinates.Controls.Add(this.buttonNextScreen);
+            this.groupCoordinates.Controls.Add(this.buttonPreviousScreen);
             this.groupCoordinates.Controls.Add(this.labelStoredY);
             this.groupCoordinates.Controls.Add(this.labelStoredX);
             this.groupCoordinates.Controls.Add(this.labelStoredScore);
@@ -291,7 +333,7 @@
             this.groupCoordinates.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupCoordinates.Location = new System.Drawing.Point(12, 12);
             this.groupCoordinates.Name = "groupCoordinates";
-            this.groupCoordinates.Size = new System.Drawing.Size(207, 251);
+            this.groupCoordinates.Size = new System.Drawing.Size(207, 286);
             this.groupCoordinates.TabIndex = 16;
             this.groupCoordinates.TabStop = false;
             this.groupCoordinates.Text = "Save states";
@@ -396,7 +438,7 @@
             this.comboSaves.Enabled = false;
             this.comboSaves.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboSaves.FormattingEnabled = true;
-            this.comboSaves.Location = new System.Drawing.Point(6, 172);
+            this.comboSaves.Location = new System.Drawing.Point(6, 173);
             this.comboSaves.Name = "comboSaves";
             this.comboSaves.Size = new System.Drawing.Size(193, 21);
             this.comboSaves.TabIndex = 19;
@@ -430,7 +472,7 @@
             // 
             this.buttonGo.BackColor = System.Drawing.Color.LightSteelBlue;
             this.buttonGo.Font = new System.Drawing.Font("Calibri", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonGo.Location = new System.Drawing.Point(6, 224);
+            this.buttonGo.Location = new System.Drawing.Point(6, 257);
             this.buttonGo.Name = "buttonGo";
             this.buttonGo.Size = new System.Drawing.Size(193, 19);
             this.buttonGo.TabIndex = 16;
@@ -441,7 +483,7 @@
             // textY
             // 
             this.textY.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textY.Location = new System.Drawing.Point(152, 198);
+            this.textY.Location = new System.Drawing.Point(152, 231);
             this.textY.Name = "textY";
             this.textY.Size = new System.Drawing.Size(41, 20);
             this.textY.TabIndex = 15;
@@ -449,7 +491,7 @@
             // textX
             // 
             this.textX.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textX.Location = new System.Drawing.Point(75, 198);
+            this.textX.Location = new System.Drawing.Point(75, 231);
             this.textX.Name = "textX";
             this.textX.Size = new System.Drawing.Size(41, 20);
             this.textX.TabIndex = 14;
@@ -458,7 +500,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(6, 201);
+            this.label3.Location = new System.Drawing.Point(6, 234);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(45, 13);
             this.label3.TabIndex = 13;
@@ -469,7 +511,7 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.Red;
-            this.label4.Location = new System.Drawing.Point(127, 201);
+            this.label4.Location = new System.Drawing.Point(127, 234);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(19, 13);
             this.label4.TabIndex = 12;
@@ -480,7 +522,7 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Blue;
-            this.label5.Location = new System.Drawing.Point(50, 201);
+            this.label5.Location = new System.Drawing.Point(50, 234);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(19, 13);
             this.label5.TabIndex = 11;
@@ -508,11 +550,13 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.labelJumpP);
             this.groupBox1.Controls.Add(this.pSpeedBar);
             this.groupBox1.Controls.Add(this.labelP);
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(12, 269);
+            this.groupBox1.Location = new System.Drawing.Point(12, 304);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(448, 67);
             this.groupBox1.TabIndex = 16;
@@ -531,9 +575,9 @@
             // 
             // buttonPowerup
             // 
-            this.buttonPowerup.Location = new System.Drawing.Point(225, 124);
+            this.buttonPowerup.Location = new System.Drawing.Point(225, 224);
             this.buttonPowerup.Name = "buttonPowerup";
-            this.buttonPowerup.Size = new System.Drawing.Size(235, 43);
+            this.buttonPowerup.Size = new System.Drawing.Size(155, 43);
             this.buttonPowerup.TabIndex = 17;
             this.buttonPowerup.Text = "Power-up";
             this.buttonPowerup.UseVisualStyleBackColor = true;
@@ -544,7 +588,7 @@
             this.statusStrip1.BackColor = System.Drawing.SystemColors.ControlText;
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.labelStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 340);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 374);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(472, 22);
             this.statusStrip1.SizingGrip = false;
@@ -555,25 +599,73 @@
             // 
             this.labelStatus.ForeColor = System.Drawing.SystemColors.Control;
             this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(287, 17);
-            this.labelStatus.Text = "If you see this, there is a problem. Click the fix button";
+            this.labelStatus.Size = new System.Drawing.Size(317, 17);
+            this.labelStatus.Text = "If you see this, there is a problem. Click the \'Rescan\' button";
             // 
             // buttonRescan
             // 
             this.buttonRescan.BackColor = System.Drawing.SystemColors.Control;
-            this.buttonRescan.Location = new System.Drawing.Point(225, 218);
+            this.buttonRescan.Location = new System.Drawing.Point(305, 271);
             this.buttonRescan.Name = "buttonRescan";
-            this.buttonRescan.Size = new System.Drawing.Size(235, 43);
+            this.buttonRescan.Size = new System.Drawing.Size(75, 23);
             this.buttonRescan.TabIndex = 19;
             this.buttonRescan.Text = "Rescan";
             this.buttonRescan.UseVisualStyleBackColor = false;
             this.buttonRescan.Click += new System.EventHandler(this.buttonRescan_Click);
             // 
+            // buttonNextScreen
+            // 
+            this.buttonNextScreen.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.buttonNextScreen.Enabled = false;
+            this.buttonNextScreen.Font = new System.Drawing.Font("Calibri", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonNextScreen.Location = new System.Drawing.Point(106, 200);
+            this.buttonNextScreen.Name = "buttonNextScreen";
+            this.buttonNextScreen.Size = new System.Drawing.Size(93, 19);
+            this.buttonNextScreen.TabIndex = 33;
+            this.buttonNextScreen.Text = "Next screen";
+            this.buttonNextScreen.UseVisualStyleBackColor = false;
+            this.buttonNextScreen.Click += new System.EventHandler(this.buttonNextScreen_Click);
+            // 
+            // buttonPreviousScreen
+            // 
+            this.buttonPreviousScreen.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.buttonPreviousScreen.Enabled = false;
+            this.buttonPreviousScreen.Font = new System.Drawing.Font("Calibri", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonPreviousScreen.Location = new System.Drawing.Point(6, 200);
+            this.buttonPreviousScreen.Name = "buttonPreviousScreen";
+            this.buttonPreviousScreen.Size = new System.Drawing.Size(93, 19);
+            this.buttonPreviousScreen.TabIndex = 32;
+            this.buttonPreviousScreen.Text = "Previous screen";
+            this.buttonPreviousScreen.UseVisualStyleBackColor = false;
+            this.buttonPreviousScreen.Click += new System.EventHandler(this.buttonPreviousScreen_Click);
+            // 
+            // checkSPREADMYWINGS
+            // 
+            this.checkSPREADMYWINGS.AutoSize = true;
+            this.checkSPREADMYWINGS.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkSPREADMYWINGS.Location = new System.Drawing.Point(15, 152);
+            this.checkSPREADMYWINGS.Name = "checkSPREADMYWINGS";
+            this.checkSPREADMYWINGS.Size = new System.Drawing.Size(171, 17);
+            this.checkSPREADMYWINGS.TabIndex = 24;
+            this.checkSPREADMYWINGS.Text = "SPREAD MY WINGS (broken)";
+            this.checkSPREADMYWINGS.UseVisualStyleBackColor = true;
+            // 
+            // buttonShmup
+            // 
+            this.buttonShmup.Location = new System.Drawing.Point(385, 224);
+            this.buttonShmup.Name = "buttonShmup";
+            this.buttonShmup.Size = new System.Drawing.Size(75, 43);
+            this.buttonShmup.TabIndex = 20;
+            this.buttonShmup.Text = "Shmup (broken)";
+            this.buttonShmup.UseVisualStyleBackColor = true;
+            this.buttonShmup.Click += new System.EventHandler(this.buttonShmup_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(472, 362);
+            this.ClientSize = new System.Drawing.Size(472, 396);
+            this.Controls.Add(this.buttonShmup);
             this.Controls.Add(this.buttonRescan);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.buttonPowerup);
@@ -584,11 +676,12 @@
             this.Controls.Add(this.buttonHotkeys);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainWindow";
-            this.Text = "SuperMarisaWorldPrac v1.3";
+            this.Text = "SuperMarisaWorldPrac v1.4";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.groupFreeze.ResumeLayout(false);
             this.groupFreeze.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericLives)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericScore)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericStars)).EndInit();
@@ -627,7 +720,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label labelJumpP;
         private System.Windows.Forms.CheckBox checkScore;
-        private System.Windows.Forms.CheckBox checkSpeedFly;
+        private System.Windows.Forms.CheckBox checkPSpeedFly;
         private System.Windows.Forms.CheckBox checkPowerup;
         private System.Windows.Forms.Button buttonLoad;
         private System.Windows.Forms.Button buttonStore;
@@ -647,6 +740,12 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel labelStatus;
         private System.Windows.Forms.Button buttonRescan;
+        private System.Windows.Forms.CheckBox checkRespawn;
+        private System.Windows.Forms.NumericUpDown numericLives;
+        private System.Windows.Forms.Button buttonNextScreen;
+        private System.Windows.Forms.Button buttonPreviousScreen;
+        private System.Windows.Forms.CheckBox checkSPREADMYWINGS;
+        private System.Windows.Forms.Button buttonShmup;
     }
 }
 

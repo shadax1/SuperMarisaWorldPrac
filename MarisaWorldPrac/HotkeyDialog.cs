@@ -25,6 +25,9 @@ namespace SuperMarisaWorldPrac
                 comboHotkey2.Items.Add(k);
                 comboHotkey3.Items.Add(k);
                 comboHotkey4.Items.Add(k);
+                comboHotkey5.Items.Add(k);
+                comboHotkey6.Items.Add(k);
+                comboHotkey7.Items.Add(k);
             }
 
             foreach (ModifierKeys k in Enum.GetValues(typeof(ModifierKeys)))
@@ -33,6 +36,9 @@ namespace SuperMarisaWorldPrac
                 comboModifier2.Items.Add(k);
                 comboModifier3.Items.Add(k);
                 comboModifier4.Items.Add(k);
+                comboModifier5.Items.Add(k);
+                comboModifier6.Items.Add(k);
+                comboModifier7.Items.Add(k);
             }
         }
 
@@ -73,7 +79,10 @@ namespace SuperMarisaWorldPrac
             {comboModifier1.SelectedItem.ToString() + comboHotkey1.SelectedItem.ToString(),
             comboModifier2.SelectedItem.ToString() + comboHotkey2.SelectedItem.ToString(),
             comboModifier3.SelectedItem.ToString() + comboHotkey3.SelectedItem.ToString(),
-            comboModifier4.SelectedItem.ToString() + comboHotkey4.SelectedItem.ToString()};
+            comboModifier4.SelectedItem.ToString() + comboHotkey4.SelectedItem.ToString(),
+            comboModifier5.SelectedItem.ToString() + comboHotkey5.SelectedItem.ToString(),
+            comboModifier6.SelectedItem.ToString() + comboHotkey6.SelectedItem.ToString(),
+            comboModifier7.SelectedItem.ToString() + comboHotkey7.SelectedItem.ToString()};
             foreach (var x in a)
                 if (hs.Add(x))
                     i++;
