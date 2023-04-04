@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace SuperMarisaWorldPrac
 {
     public partial class HotkeyDialog : Form
     {
+        static string version = "v1.5";
         static string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         string configpath = appdata + @"\SMWPrac\";
         string hotkeyfilename = "hotkey.cfg";
@@ -27,7 +29,6 @@ namespace SuperMarisaWorldPrac
                 comboHotkey4.Items.Add(k);
                 comboHotkey5.Items.Add(k);
                 comboHotkey6.Items.Add(k);
-                comboHotkey7.Items.Add(k);
             }
 
             foreach (ModifierKeys k in Enum.GetValues(typeof(ModifierKeys)))
@@ -38,7 +39,6 @@ namespace SuperMarisaWorldPrac
                 comboModifier4.Items.Add(k);
                 comboModifier5.Items.Add(k);
                 comboModifier6.Items.Add(k);
-                comboModifier7.Items.Add(k);
             }
         }
 
@@ -46,8 +46,9 @@ namespace SuperMarisaWorldPrac
         {
             using (StreamWriter sw = File.CreateText(configpath + hotkeyfilename)) //saving hotkeys
             {
-                //stores values of all comboboxes
-                foreach (Control c in Controls) //parse all components inside the form
+                sw.WriteLine(version); //stores the value of the combobox inside the .cfg
+                //store combobox values by parsing all components inside the form in the TabIndex order
+                foreach (Control c in Controls.Cast<Control>().OrderBy(c => c.TabIndex))
                     if (c is ComboBox) //if they are comboboxes
                         sw.WriteLine(c.Text); //stores the value of the combobox inside the .cfg
             }
@@ -63,8 +64,9 @@ namespace SuperMarisaWorldPrac
             {
                 using (StreamReader sr = File.OpenText(configpath + hotkeyfilename))
                 {
-                    //loads comboboxes values
-                    foreach (Control c in Controls) //parse all components inside the form
+                    sr.ReadLine(); //skip line with version
+                    //loads comboboxes with values by parsing all components inside the form in the TabIndex order
+                    foreach (Control c in Controls.Cast<Control>().OrderBy(c => c.TabIndex)) 
                         if (c is ComboBox) //if they are comboboxes
                             c.Text = sr.ReadLine(); //reads the value from the .cfg and puts it into the combobox
                 }
@@ -81,8 +83,7 @@ namespace SuperMarisaWorldPrac
             comboModifier3.SelectedItem.ToString() + comboHotkey3.SelectedItem.ToString(),
             comboModifier4.SelectedItem.ToString() + comboHotkey4.SelectedItem.ToString(),
             comboModifier5.SelectedItem.ToString() + comboHotkey5.SelectedItem.ToString(),
-            comboModifier6.SelectedItem.ToString() + comboHotkey6.SelectedItem.ToString(),
-            comboModifier7.SelectedItem.ToString() + comboHotkey7.SelectedItem.ToString()};
+            comboModifier6.SelectedItem.ToString() + comboHotkey6.SelectedItem.ToString()};
             foreach (var x in a)
                 if (hs.Add(x))
                     i++;

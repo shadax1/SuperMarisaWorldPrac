@@ -48,6 +48,8 @@
             // 
             // textDescription
             // 
+            this.textDescription.BackColor = System.Drawing.Color.White;
+            this.textDescription.Cursor = System.Windows.Forms.Cursors.Default;
             this.textDescription.Location = new System.Drawing.Point(12, 12);
             this.textDescription.Name = "textDescription";
             this.textDescription.ReadOnly = true;
@@ -72,7 +74,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(60, 13);
             this.label1.TabIndex = 27;
-            this.label1.Text = "Version 1.4";
+            this.label1.Text = "Version 1.5";
             // 
             // label2
             // 
