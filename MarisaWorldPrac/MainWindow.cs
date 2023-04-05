@@ -573,11 +573,8 @@ namespace SuperMarisaWorldPrac
             while (true)
             {
                 flight = pm.Read(FIRST_OFFSET, FLIGHT_OFFSET);
-                if (powerup == BROOM && flight[0] > 0)
-                {
+                if (powerup == BROOM && flight[0] > 0 && flight[0] <= 180)
                     flightBar.Invoke((MethodInvoker)delegate () { flightBar.Value = flight[0]; });
-                    //flightBar.Invoke((MethodInvoker)delegate () { flightBar.ForeColor = Color.CadetBlue; });
-                }
                 else
                     flightBar.Invoke((MethodInvoker)delegate () { flightBar.Value = 0; });
                 Thread.Sleep(1);

@@ -772,7 +772,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainWindow";
-            this.Text = "SuperMarisaWorldPrac v1.5.1";
+            this.Text = "SuperMarisaWorldPrac v1.5.2";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.groupCoordinates.ResumeLayout(false);
