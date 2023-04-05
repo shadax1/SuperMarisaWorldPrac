@@ -14,7 +14,7 @@ namespace SuperMarisaWorldPrac
     public partial class MainWindow : Form
     {
         #region global variables
-        static string version = "v1.5";
+        static string hotkeyVersion = "v1.5";
         static string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         string configpath = appdata + @"\SMWPrac\";
         string configfilename = "config.cfg";
@@ -27,7 +27,8 @@ namespace SuperMarisaWorldPrac
         string[] mods = new string[numberHotkeys];
 
         bool MarisaDoko = false; //false means the pointer offset for stage IDs wasn't found - true means found
-        bool MarisaDead = false; //false means the pointer offset for stage IDs wasn't found - true means found
+        bool MarisaDead = false;
+        bool MarisaFlying = false;
         Stopwatch swSaveState = new Stopwatch();
         #endregion
 
@@ -38,23 +39,31 @@ namespace SuperMarisaWorldPrac
 
         //pointer offsets
         int[] STATE_OFFSET = { -0x30 };
+        const int NEWSTAGE = 0;
         const int SPAWNING = 1;
         const int PLAYING = 2;
         const int LOADING = 3;
         const int DEAD = 4;
+        const int WIN = 5;
         const int PAUSED = 6;
+
+        const int MARISA = 0;
+        const int MIKO = 1;
+        const int BROOM = 2;
+        const int RUMIA = 3;
+        const int SHMUP = 9;
 
         int[] SCREEN_ID_OFFSET = { 0x14 }, PIPE_OFFSET = { 0xADC };
         int[] X_OFFSET = { 0x1C }, Y_OFFSET = { 0x28 };
         int[] LIVES_OFFSET = { 0xA88 }, STARS_OFFSET = { 0xA8C }, TIME_OFFSET = { 0xA98 };
-        int[] SCORE_OFFSET = { 0xA9C }, HIGHSCORE_OFFSET = { 0xAA0 };
+        int[] STOPWATCH_OFFSET = { 0x94C }, SCORE_OFFSET = { 0xA9C }, HIGHSCORE_OFFSET = { 0xAA0 };
         int[] ANIMATION_OFFSET = { 0x50 }, POWERUP_OFFSET = { 0x54 }, GROUNDED_FLAG_OFFSET = { 0x74 };
         int[] PSPEED_OFFSET = { 0x88 }, FLIGHT_OFFSET = { 0x90 }, IFRAMES_OFFSET = { 0x94 };
         int[] STAGE_ID_OFFSET = { 0x2C8, 0x108, 0x47 }; //the first value can change a lot from a PC to another...
 
         int storedX = 1, storedY = 1, storedStars = 0, storedTime = 500, storedScore = 0, storedScreenID = 0;
         float XF = 0, YF = 0, storedXF = 1, storedYF = 1; //float coordinates
-        int X, Y, stars, time, score, powerup, screenID, pipe, state; //a thread will read various values from the game and store them in these ints here
+        int X, Y, stars, time, score, powerup, screenID, pipe, state, stopwatch; //a thread will read various values from the game and store them in these ints here
         string stageID; //a thread will read the stage ID value and store it in this string here
         List<string> stageList = new List<string>();
         Dictionary<string, int[]> dictScreen = new Dictionary<string, int[]>();
@@ -97,8 +106,6 @@ namespace SuperMarisaWorldPrac
 
             toolTip.AutoPopDelay = 10000; toolTip.InitialDelay = 500; toolTip.ReshowDelay = 500;
             toolTip.ShowAlways = true; //force the ToolTip text to be displayed whether or not the form is active.
-            toolTip.SetToolTip(checkSaveStateTimers, "Displays the save state timer in the 'Score' field inside the HUD\n" +
-                                                     "and the time upon entering a pipe in the 'HighScore' field.");
             toolTip.SetToolTip(checkLives, "Freezes lives at the specified value from the text field below.");
             toolTip.SetToolTip(checkStars, "Freezes stars at the specified value from the text field below.");
             toolTip.SetToolTip(checkTime, "Freezes time at the specified value from the text field below.");
@@ -173,6 +180,7 @@ namespace SuperMarisaWorldPrac
             new Thread(SetFreeze) { IsBackground = true }.Start();
             new Thread(Coordinates) { IsBackground = true }.Start();
             new Thread(PSpeed) { IsBackground = true }.Start();
+            new Thread(Flight) { IsBackground = true }.Start();
             new Thread(TrackPowerup) { IsBackground = true }.Start();
             new Thread(TrackDeath) { IsBackground = true }.Start();
             new Thread(TrackPSpeedAfterJump) { IsBackground = true }.Start(); //keeping this as its own thing for accurate readings
@@ -394,7 +402,7 @@ namespace SuperMarisaWorldPrac
                     if (checkPSpeedFly.Checked)
                     {
                         pm.Write(FIRST_OFFSET, PSPEED_OFFSET, BitConverter.GetBytes(120));
-                        pm.Write(FIRST_OFFSET, FLIGHT_OFFSET, BitConverter.GetBytes(200));
+                        pm.Write(FIRST_OFFSET, FLIGHT_OFFSET, BitConverter.GetBytes(180));
                     }
 
                     if (checkSPREADMYWINGS.Checked)
@@ -505,6 +513,7 @@ namespace SuperMarisaWorldPrac
 
         private void PSpeed()
         {
+            int sleep = 100;
             byte[] pSpeed = new byte[1];
             while (true)
             {
@@ -513,8 +522,9 @@ namespace SuperMarisaWorldPrac
                 {
                     Invoke((MethodInvoker)delegate //using this because thread
                     {
-                        if (powerup == 2)
+                        if (powerup == BROOM)
                         {
+                            sleep = 1;
                             if (!checkPSpeedFly.Checked)
                             {
                                 if (pSpeed[0] >= 1 || pSpeed[0] <= 120)
@@ -536,11 +546,13 @@ namespace SuperMarisaWorldPrac
                         }
                         else if (XF == 0 && YF == 0)
                         {
+                            sleep = 100;
                             labelP.Text = "";
                             pSpeedBar.Value = 0;
                         }
                         else
                         {
+                            sleep = 100;
                             labelP.Text = "No broom";
                             pSpeedBar.Value = 120;
                             pSpeedBar.ForeColor = Color.Red;
@@ -551,6 +563,23 @@ namespace SuperMarisaWorldPrac
                 {
                     Console.WriteLine("Caught exception: " + ex.Message);
                 }
+                Thread.Sleep(sleep);
+            }
+        }
+
+        private void Flight()
+        {
+            byte[] flight = new byte[1];
+            while (true)
+            {
+                flight = pm.Read(FIRST_OFFSET, FLIGHT_OFFSET);
+                if (powerup == BROOM && flight[0] > 0)
+                {
+                    flightBar.Invoke((MethodInvoker)delegate () { flightBar.Value = flight[0]; });
+                    //flightBar.Invoke((MethodInvoker)delegate () { flightBar.ForeColor = Color.CadetBlue; });
+                }
+                else
+                    flightBar.Invoke((MethodInvoker)delegate () { flightBar.Value = 0; });
                 Thread.Sleep(1);
             }
         }
@@ -566,10 +595,10 @@ namespace SuperMarisaWorldPrac
                 pSpeed = pm.Read(FIRST_OFFSET, PSPEED_OFFSET);
                 groundedFlag = pm.Read(FIRST_OFFSET, GROUNDED_FLAG_OFFSET);
 
-                if (powerup != 2)
+                if (powerup != BROOM)
                     labelJumpP.Invoke((MethodInvoker)delegate () { labelJumpP.Text = ""; });
 
-                if (powerup == 2 && groundedFlag[0] == 0 && !flagStore) //if marisa has her broom and has jumped and the flag is false
+                if (powerup == BROOM && groundedFlag[0] == 0 && !flagStore) //if marisa has her broom and has jumped and the flag is false
                 {
                     if (pSpeed[0] != 120)
                         labelJumpP.Invoke((MethodInvoker)delegate () { labelJumpP.Text = "Jumped at: " + pSpeed[0]; });
@@ -577,7 +606,7 @@ namespace SuperMarisaWorldPrac
                         labelJumpP.Invoke((MethodInvoker)delegate () { labelJumpP.Text = "Jumped at: " + pSpeed[0] + "!!!!"; });
                     flagStore = true;
                 }
-                if (powerup == 2 && groundedFlag[0] == 1 && flagStore) //if marisa has her broom and has landed
+                if (powerup == BROOM && groundedFlag[0] == 1 && flagStore) //if marisa has her broom and has landed
                     flagStore = false; //set the flag back to false
 
                 Thread.Sleep(1);
@@ -623,9 +652,9 @@ namespace SuperMarisaWorldPrac
                         LoadStoredValues();
                     else
                     {
-                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(0));
+                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(NEWSTAGE));
                         Thread.Sleep(200);
-                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(2));
+                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(PLAYING));
                     }
                     MarisaDead = true;
                 }
@@ -638,17 +667,17 @@ namespace SuperMarisaWorldPrac
         {
             while (true)
             {
-                if (powerup == 0 && state == PLAYING) //when no powerup -> offer switching to miko
+                if (powerup == MARISA && state == PLAYING) //when no powerup -> offer switching to miko
                 {
                     buttonPowerup.Invoke((MethodInvoker)delegate () { buttonPowerup.Text = "Power-up: Switch to Miko"; });
                     buttonPowerup.BackColor = Color.FromArgb(255, 153, 153);
                 }
-                else if (powerup == 1) //when miko -> offer switching to broom
+                else if (powerup == MIKO) //when miko -> offer switching to broom
                 {
                     buttonPowerup.Invoke((MethodInvoker)delegate () { buttonPowerup.Text = "Power-up: Switch to Broom"; });
                     buttonPowerup.BackColor = Color.FromArgb(255, 209, 146);
                 }
-                else if (powerup == 2) //when broom -> offer switching to marisa
+                else if (powerup == BROOM) //when broom -> offer switching to marisa
                 {
                     buttonPowerup.Invoke((MethodInvoker)delegate () { buttonPowerup.Text = "Power-up: Back to normal"; });
                     buttonPowerup.BackColor = Color.FromArgb(175, 175, 175);
@@ -664,65 +693,27 @@ namespace SuperMarisaWorldPrac
 
         private void Timers()
         {
-            Stopwatch swStage = new Stopwatch();
-            bool gamePaused = false, gameLoading = false, titleScreen = true, stageStarted = false;
+            TimeSpan t = new TimeSpan();
             
             while (true)
             {
+                byte[] buffer = pm.Read(FIRST_OFFSET, STOPWATCH_OFFSET); stopwatch = BitConverter.ToInt32(buffer, 0);
+                t = TimeSpan.FromSeconds((double)stopwatch / 120); //stopatch value counts seconds per 120 units for some reason
+                string stringStopwatch = t.Minutes.ToString("D2") + ":" + t.Seconds.ToString("D2") + "." + t.Milliseconds.ToString("D3");
+                if (state == NEWSTAGE) //new stage
+                    if (swSaveState.ElapsedTicks != 0) //if the save state timer was running, reset it
+                        swSaveState.Reset();
                 if (state == PLAYING) //if in game
                 {
-                    if (!stageStarted)
-                    {
-                        swStage.Restart(); titleScreen = false; stageStarted = true;
-                    }
-                    if (gamePaused) //resuming the game from the pause screen
-                    {
-                        swStage.Start(); //resume stage timer
-                        if (swSaveState.ElapsedTicks != 0) //if the save state timer was running, resume it too
-                            swSaveState.Start();
-                        gamePaused = false;
-                    }
-                    if (gameLoading) //after a loading screen
-                    {
-                        swStage.Start(); //resume stage timer
-                        if (swSaveState.ElapsedTicks != 0) //if the save state timer was running, resume it too
-                            swSaveState.Start();
-                        gameLoading = false;
-                    }
-                    labelTimerStage.Invoke((MethodInvoker)delegate () { labelTimerStage.Text = swStage.Elapsed.ToString("mm\\:ss\\.ff"); });
-                    labelTimerSaveState.Invoke((MethodInvoker)delegate () { labelTimerSaveState.Text = swSaveState.Elapsed.ToString("mm\\:ss\\.ff"); });
-                    if (checkSaveStateTimers.Checked)
-                        pm.Write(FIRST_OFFSET, SCORE_OFFSET, BitConverter.GetBytes((int)swSaveState.ElapsedMilliseconds));
+                    if (swSaveState.ElapsedTicks != 0) //if the save state timer was running, resume it too
+                        swSaveState.Start();
+                    labelTimerStage.Invoke((MethodInvoker)delegate () { labelTimerStage.Text = stringStopwatch; });
+                    labelTimerSaveState.Invoke((MethodInvoker)delegate () { labelTimerSaveState.Text = swSaveState.Elapsed.ToString("mm\\:ss\\.fff"); });
                 }
-                else if (state == LOADING)
-                {
-                    swStage.Stop(); swSaveState.Stop();
-                    labelTimerStageStored.Invoke((MethodInvoker)delegate () { labelTimerStageStored.Text = "(" + swStage.Elapsed.ToString("mm\\:ss\\.ff") + ")"; });
-                    labelTimerSaveStateStored.Invoke((MethodInvoker)delegate () { labelTimerSaveStateStored.Text = "(" + swSaveState.Elapsed.ToString("mm\\:ss\\.ff") + ")"; });
-                    if (checkSaveStateTimers.Checked)
-                        pm.Write(FIRST_OFFSET, HIGHSCORE_OFFSET, BitConverter.GetBytes((int)swSaveState.ElapsedMilliseconds));
-                    gameLoading = true;
-                }
-                else if (state == PAUSED) //if game is paused, pause the timers
-                {
-                    swStage.Stop(); swSaveState.Stop();
-                    gamePaused = true;
-                }
-                else if (X == 0 && Y == 0) //going back to title screen
-                {
-                    if (!titleScreen)
-                    {
-                        swStage.Stop(); swSaveState.Stop();
-                        Thread.Sleep(2000); //give the game some time to fully be on the world map
-                        labelTimerStageStored.Invoke((MethodInvoker)delegate () { labelTimerStageStored.Text = "(" + swStage.Elapsed.ToString("mm\\:ss\\.ff") + ")"; });
-                        labelTimerSaveStateStored.Invoke((MethodInvoker)delegate () { labelTimerSaveStateStored.Text = "(" + swSaveState.Elapsed.ToString("mm\\:ss\\.ff") + ")"; });
-                        swStage.Reset(); swSaveState.Reset();
-                        labelTimerStage.Invoke((MethodInvoker)delegate () { labelTimerStage.Text = swStage.Elapsed.ToString("mm\\:ss\\.ff"); });
-                        labelTimerSaveState.Invoke((MethodInvoker)delegate () { labelTimerSaveState.Text = swSaveState.Elapsed.ToString("mm\\:ss\\.ff"); });
-                        titleScreen = true; stageStarted = false;
-                    }
-                }
-                Thread.Sleep(50);
+                //if game is loading, paused or on the title screen -> pause timers
+                else if (state == LOADING || state == PAUSED || (X == 0 && Y == 0))
+                    swSaveState.Stop();
+                Thread.Sleep(1);
             }
         }
 
@@ -739,7 +730,7 @@ namespace SuperMarisaWorldPrac
                     {
                         if (checkScoreRandomizer.Checked)
                         {
-                            checkScore.Enabled = false; numericScore.Enabled = false; checkSaveStateTimers.Enabled = false;
+                            checkScore.Enabled = false; numericScore.Enabled = false;
                             if (comboScoreRandomizer.Text == "Very random") //generate random numbers
                             {
                                 randomNumber = random.Next(0, 9999999);
@@ -754,7 +745,7 @@ namespace SuperMarisaWorldPrac
                             pm.Write(FIRST_OFFSET, SCORE_OFFSET, BitConverter.GetBytes(randomNumber));
                         }
                         else
-                        { checkScore.Enabled = true; numericScore.Enabled = true; checkSaveStateTimers.Enabled = true; }
+                        { checkScore.Enabled = true; numericScore.Enabled = true; }
                     });
                 }
                 catch (Exception ex)
@@ -837,7 +828,6 @@ namespace SuperMarisaWorldPrac
             labelStoredScore.Text = "Score: " + storedScore;
 
             LoadStoredValues();
-            swSaveState.Restart(); //start the save state timer
         }
         #endregion
 
@@ -845,7 +835,7 @@ namespace SuperMarisaWorldPrac
         private void WriteDefaultHotkeyConfig()
         {
             TextWriter writer = new StreamWriter(configpath + hotkeyfilename);
-            writer.WriteLine(version + "\nAlt\nD1\nAlt\nD2\nAlt\nD3\nAlt\nD4\nAlt\nD5\nAlt\nD6");
+            writer.WriteLine(hotkeyVersion + "\nAlt\nD1\nAlt\nD2\nAlt\nD3\nAlt\nD4\nAlt\nD5\nAlt\nD6");
             writer.Close();
         }
 
@@ -857,7 +847,7 @@ namespace SuperMarisaWorldPrac
                 WriteDefaultHotkeyConfig();
             if (File.Exists(configpath + hotkeyfilename)) //checks if hotkey.cfg exists
             {
-                if (File.ReadLines(configpath + hotkeyfilename).First().Contains(version))
+                if (File.ReadLines(configpath + hotkeyfilename).First().Contains(hotkeyVersion))
                 {
                     using (StreamReader sr = File.OpenText(configpath + hotkeyfilename))
                     {
@@ -959,25 +949,26 @@ namespace SuperMarisaWorldPrac
 
         private void LoadStoredValues()
         {
-            pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(0));
+            pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(NEWSTAGE));
             Thread.Sleep(200);
             pm.Write(FIRST_OFFSET, SCREEN_ID_OFFSET, BitConverter.GetBytes(storedScreenID));
-            pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(2));
+            pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(PLAYING));
             pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(storedX));
             pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(storedY));
             pm.Write(FIRST_OFFSET, STARS_OFFSET, BitConverter.GetBytes(storedStars));
             pm.Write(FIRST_OFFSET, TIME_OFFSET, BitConverter.GetBytes(storedTime));
             pm.Write(FIRST_OFFSET, SCORE_OFFSET, BitConverter.GetBytes(storedScore));
+            swSaveState.Restart(); //start the save state timer
         }
 
         private void ChangePowerup()
         {
-            if (powerup == 0)
-                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(1));
-            else if (powerup == 1)
-                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(2));
+            if (powerup == MARISA)
+                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(MIKO));
+            else if (powerup == MIKO)
+                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(BROOM));
             else
-                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(0));
+                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(MARISA));
         }
 
         private void LoadNextSaveState()
@@ -1152,7 +1143,7 @@ namespace SuperMarisaWorldPrac
                         }
                         else //if player is in kaguya's stage -> send them to screen 2 with shmup powerup and specific coordinates
                         {
-                            pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(9));
+                            pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(SHMUP));
                             pm.Write(FIRST_OFFSET, SCREEN_ID_OFFSET, BitConverter.GetBytes(2));
                             pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(1077411840));
                             pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(1088421888));
@@ -1197,7 +1188,7 @@ namespace SuperMarisaWorldPrac
                         }
                         else //if player is in kaguya's stage -> send them to screen 2 with shmup powerup and specific coordinates
                         {
-                            pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(9));
+                            pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(SHMUP));
                             pm.Write(FIRST_OFFSET, SCREEN_ID_OFFSET, BitConverter.GetBytes(2));
                             pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(1077411840));
                             pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(1088421888));

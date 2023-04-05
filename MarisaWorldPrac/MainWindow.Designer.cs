@@ -57,6 +57,7 @@
             this.buttonSave = new System.Windows.Forms.Button();
             this.comboSaves = new System.Windows.Forms.ComboBox();
             this.groupPspeed = new System.Windows.Forms.GroupBox();
+            this.flightBar = new System.Windows.Forms.ProgressBar();
             this.labelJumpP = new System.Windows.Forms.Label();
             this.buttonPowerup = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -83,11 +84,8 @@
             this.groupSaves = new System.Windows.Forms.GroupBox();
             this.label6 = new System.Windows.Forms.Label();
             this.labelTimerStage = new System.Windows.Forms.Label();
-            this.labelTimerStageStored = new System.Windows.Forms.Label();
-            this.labelTimerSaveStateStored = new System.Windows.Forms.Label();
             this.labelTimerSaveState = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.checkSaveStateTimers = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupCoordinates.SuspendLayout();
             this.groupPspeed.SuspendLayout();
@@ -138,7 +136,7 @@
             this.pSpeedBar.Location = new System.Drawing.Point(6, 35);
             this.pSpeedBar.Maximum = 120;
             this.pSpeedBar.Name = "pSpeedBar";
-            this.pSpeedBar.Size = new System.Drawing.Size(461, 23);
+            this.pSpeedBar.Size = new System.Drawing.Size(461, 15);
             this.pSpeedBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pSpeedBar.TabIndex = 10;
             // 
@@ -408,16 +406,26 @@
             // groupPspeed
             // 
             this.groupPspeed.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.groupPspeed.Controls.Add(this.labelP);
+            this.groupPspeed.Controls.Add(this.flightBar);
             this.groupPspeed.Controls.Add(this.labelJumpP);
             this.groupPspeed.Controls.Add(this.pSpeedBar);
-            this.groupPspeed.Controls.Add(this.labelP);
             this.groupPspeed.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupPspeed.Location = new System.Drawing.Point(12, 351);
+            this.groupPspeed.Location = new System.Drawing.Point(12, 348);
             this.groupPspeed.Name = "groupPspeed";
-            this.groupPspeed.Size = new System.Drawing.Size(473, 66);
+            this.groupPspeed.Size = new System.Drawing.Size(473, 75);
             this.groupPspeed.TabIndex = 16;
             this.groupPspeed.TabStop = false;
             this.groupPspeed.Text = "P-speed";
+            // 
+            // flightBar
+            // 
+            this.flightBar.Location = new System.Drawing.Point(6, 54);
+            this.flightBar.Maximum = 180;
+            this.flightBar.Name = "flightBar";
+            this.flightBar.Size = new System.Drawing.Size(461, 15);
+            this.flightBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.flightBar.TabIndex = 12;
             // 
             // labelJumpP
             // 
@@ -445,7 +453,7 @@
             this.statusStrip1.BackColor = System.Drawing.SystemColors.ControlText;
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.labelStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 420);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 426);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(493, 22);
             this.statusStrip1.SizingGrip = false;
@@ -710,7 +718,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(229, 297);
+            this.label6.Location = new System.Drawing.Point(229, 301);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(73, 15);
             this.label6.TabIndex = 35;
@@ -720,73 +728,39 @@
             // 
             this.labelTimerStage.AutoSize = true;
             this.labelTimerStage.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerStage.Location = new System.Drawing.Point(331, 298);
+            this.labelTimerStage.Location = new System.Drawing.Point(331, 302);
             this.labelTimerStage.Name = "labelTimerStage";
-            this.labelTimerStage.Size = new System.Drawing.Size(55, 15);
+            this.labelTimerStage.Size = new System.Drawing.Size(62, 15);
             this.labelTimerStage.TabIndex = 37;
-            this.labelTimerStage.Text = "00:00.00";
-            // 
-            // labelTimerStageStored
-            // 
-            this.labelTimerStageStored.AutoSize = true;
-            this.labelTimerStageStored.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerStageStored.Location = new System.Drawing.Point(392, 298);
-            this.labelTimerStageStored.Name = "labelTimerStageStored";
-            this.labelTimerStageStored.Size = new System.Drawing.Size(63, 15);
-            this.labelTimerStageStored.TabIndex = 39;
-            this.labelTimerStageStored.Text = "(00:00.00)";
-            // 
-            // labelTimerSaveStateStored
-            // 
-            this.labelTimerSaveStateStored.AutoSize = true;
-            this.labelTimerSaveStateStored.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerSaveStateStored.Location = new System.Drawing.Point(392, 316);
-            this.labelTimerSaveStateStored.Name = "labelTimerSaveStateStored";
-            this.labelTimerSaveStateStored.Size = new System.Drawing.Size(63, 15);
-            this.labelTimerSaveStateStored.TabIndex = 43;
-            this.labelTimerSaveStateStored.Text = "(00:00.00)";
+            this.labelTimerStage.Text = "00:00.000";
             // 
             // labelTimerSaveState
             // 
             this.labelTimerSaveState.AutoSize = true;
             this.labelTimerSaveState.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerSaveState.Location = new System.Drawing.Point(331, 316);
+            this.labelTimerSaveState.Location = new System.Drawing.Point(331, 320);
             this.labelTimerSaveState.Name = "labelTimerSaveState";
-            this.labelTimerSaveState.Size = new System.Drawing.Size(55, 15);
+            this.labelTimerSaveState.Size = new System.Drawing.Size(62, 15);
             this.labelTimerSaveState.TabIndex = 42;
-            this.labelTimerSaveState.Text = "00:00.00";
+            this.labelTimerSaveState.Text = "00:00.000";
             // 
             // label10
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(229, 316);
+            this.label10.Location = new System.Drawing.Point(229, 320);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(97, 15);
             this.label10.TabIndex = 41;
             this.label10.Text = "Save state timer:";
             // 
-            // checkSaveStateTimers
-            // 
-            this.checkSaveStateTimers.AutoSize = true;
-            this.checkSaveStateTimers.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkSaveStateTimers.Location = new System.Drawing.Point(225, 334);
-            this.checkSaveStateTimers.Name = "checkSaveStateTimers";
-            this.checkSaveStateTimers.Size = new System.Drawing.Size(268, 16);
-            this.checkSaveStateTimers.TabIndex = 44;
-            this.checkSaveStateTimers.Text = "Make Score and High score act as save state timers (in ms)";
-            this.checkSaveStateTimers.UseVisualStyleBackColor = true;
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(493, 442);
-            this.Controls.Add(this.checkSaveStateTimers);
-            this.Controls.Add(this.labelTimerSaveStateStored);
+            this.ClientSize = new System.Drawing.Size(493, 448);
             this.Controls.Add(this.labelTimerSaveState);
             this.Controls.Add(this.label10);
-            this.Controls.Add(this.labelTimerStageStored);
             this.Controls.Add(this.labelTimerStage);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.groupSaves);
@@ -798,7 +772,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainWindow";
-            this.Text = "SuperMarisaWorldPrac v1.5";
+            this.Text = "SuperMarisaWorldPrac v1.5.1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.groupCoordinates.ResumeLayout(false);
@@ -874,14 +848,12 @@
         private System.Windows.Forms.CheckBox checkIframes;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label labelTimerStage;
-        private System.Windows.Forms.Label labelTimerStageStored;
-        private System.Windows.Forms.Label labelTimerSaveStateStored;
         private System.Windows.Forms.Label labelTimerSaveState;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.CheckBox checkSaveStateTimers;
         private System.Windows.Forms.CheckBox checkScoreRandomizer;
         private System.Windows.Forms.ComboBox comboScoreRandomizer;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.ProgressBar flightBar;
     }
 }
 

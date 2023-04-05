@@ -27,6 +27,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutBox1));
             this.logoPictureBox = new System.Windows.Forms.PictureBox();
             this.textDescription = new System.Windows.Forms.RichTextBox();
             this.buttonOK = new System.Windows.Forms.Button();
@@ -55,7 +56,7 @@
             this.textDescription.ReadOnly = true;
             this.textDescription.Size = new System.Drawing.Size(437, 283);
             this.textDescription.TabIndex = 25;
-            this.textDescription.Text = "";
+            this.textDescription.Text = resources.GetString("textDescription.Text");
             // 
             // buttonOK
             // 
@@ -72,9 +73,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(456, 202);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(60, 13);
+            this.label1.Size = new System.Drawing.Size(69, 13);
             this.label1.TabIndex = 27;
-            this.label1.Text = "Version 1.5";
+            this.label1.Text = "Version 1.5.1";
             // 
             // label2
             // 

@@ -8,7 +8,7 @@ namespace SuperMarisaWorldPrac
 {
     public partial class HotkeyDialog : Form
     {
-        static string version = "v1.5";
+        static string hotkeyVersion = "v1.5";
         static string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         string configpath = appdata + @"\SMWPrac\";
         string hotkeyfilename = "hotkey.cfg";
@@ -46,7 +46,7 @@ namespace SuperMarisaWorldPrac
         {
             using (StreamWriter sw = File.CreateText(configpath + hotkeyfilename)) //saving hotkeys
             {
-                sw.WriteLine(version); //stores the value of the combobox inside the .cfg
+                sw.WriteLine(hotkeyVersion); //stores the value of the combobox inside the .cfg
                 //store combobox values by parsing all components inside the form in the TabIndex order
                 foreach (Control c in Controls.Cast<Control>().OrderBy(c => c.TabIndex))
                     if (c is ComboBox) //if they are comboboxes
