@@ -4,7 +4,7 @@ Download the latest release from [here](https://github.com/shadax1/SuperMarisaWo
 **Note:** your game must be at version 1.05
 
 ## Potential issues with stage detection
-When Marisa is in a stage, the tool will attempt to scan for the memery address that stores in which stage Marisa is as it can change from a PC to another.
+When Marisa is in a stage, the tool will attempt to scan for the memory address that stores in which stage Marisa is as it can change from a PC to another.
 In case of a successful scan, then the tool will display where Marisa is at the bottom of the tool and unlock the save state feature. If it fails, it's recommended to launch the game with Windows 7 compatibility.
 If it still fails after that then there isn't much I can do aside from telling you to follow [this short guide](https://youtu.be/xBSTnnGhPpo) I made which requires Cheat Engine (I use version 6.3) in an effort to find the correct pointer. Take a screenshot of the final screen in Cheat Engine and send it over to me either on Twitter [@shadax1](https://twitter.com/Shadax1) or on Discord to Shadax#6921
 
@@ -27,6 +27,7 @@ GROUNDED_FLAG_OFFSET = { 0x74 }
 PSPEED_OFFSET = { 0x88 }
 FLIGHT_OFFSET = { 0x90 }
 IFRAMES_OFFSET = { 0x94 }
+STOPWATCH_OFFSET = { 0x94C }
 ```
 
 Then, with the pointer `"SuperMarisaWorld.exe"+0015542C` found with Cheat Engine, the following array of offsets is used to read which stage Marisa is located in:
