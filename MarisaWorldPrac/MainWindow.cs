@@ -27,9 +27,7 @@ namespace SuperMarisaWorldPrac
         string[] mods = new string[numberHotkeys];
 
         bool MarisaDoko = false; //false means the pointer offset for stage IDs wasn't found - true means found
-        bool MarisaDead = false;
-        bool MarisaFlying = false;
-        Stopwatch swSaveState = new Stopwatch();
+        Stopwatch swSaveState = new Stopwatch(); //stopwatch that starts upon loading a save state
         #endregion
 
         #region memory stuff
@@ -39,31 +37,23 @@ namespace SuperMarisaWorldPrac
 
         //pointer offsets
         int[] STATE_OFFSET = { -0x30 };
-        const int NEWSTAGE = 0;
-        const int SPAWNING = 1;
-        const int PLAYING = 2;
-        const int LOADING = 3;
-        const int DEAD = 4;
-        const int WIN = 5;
-        const int PAUSED = 6;
+        int[] SCREEN_ID_OFFSET = { 0x14 }, PIPE_OFFSET = { 0xADC }, X_OFFSET = { 0x1C }, Y_OFFSET = { 0x28 };
+        int[] LIVES_OFFSET = { 0xA88 }, STARS_OFFSET = { 0xA8C }, TIME_OFFSET = { 0xA98 }, SCORE_OFFSET = { 0xA9C };
+        int[] ANIMATION_OFFSET = { 0x50 }, POWERUP_OFFSET = { 0x54 }, RUMIA_OFFSET = { 0x5C }, GROUNDED_FLAG_OFFSET = { 0x74 };
+        int[] PSPEED_OFFSET = { 0x88 }, FLIGHT_OFFSET = { 0x90 }, IFRAMES_OFFSET = { 0x94 }, STOPWATCH_OFFSET = { 0x94C };
+        int[] STAGE_ID_OFFSET = { 0x2C8, 0x108, 0x47 }; //the first value can change a lot from one PC to another...
 
-        const int MARISA = 0;
-        const int MIKO = 1;
-        const int BROOM = 2;
-        const int RUMIA = 3;
-        const int SHMUP = 9;
-
-        int[] SCREEN_ID_OFFSET = { 0x14 }, PIPE_OFFSET = { 0xADC };
-        int[] X_OFFSET = { 0x1C }, Y_OFFSET = { 0x28 };
-        int[] LIVES_OFFSET = { 0xA88 }, STARS_OFFSET = { 0xA8C }, TIME_OFFSET = { 0xA98 };
-        int[] STOPWATCH_OFFSET = { 0x94C }, SCORE_OFFSET = { 0xA9C }, HIGHSCORE_OFFSET = { 0xAA0 };
-        int[] ANIMATION_OFFSET = { 0x50 }, POWERUP_OFFSET = { 0x54 }, GROUNDED_FLAG_OFFSET = { 0x74 };
-        int[] PSPEED_OFFSET = { 0x88 }, FLIGHT_OFFSET = { 0x90 }, IFRAMES_OFFSET = { 0x94 };
-        int[] STAGE_ID_OFFSET = { 0x2C8, 0x108, 0x47 }; //the first value can change a lot from a PC to another...
+        //state constants
+        const int NEWSTAGE = 0, SPAWNING = 1, PLAYING = 2, LOADING = 3, DEAD = 4, WIN = 5, PAUSED = 6;
+        //powerup constants
+        const int MARISA = 0, MIKO = 1, BROOM = 2, RUMIA = 3, SHMUP = 9;
+        //animation constants
+        const int IDLE = 0, RUN = 1, SLIDE = 3, JUMP = 4, DRILL = 5, BROOM_FLY = 8, BROOM_HOVER = 9, DEATH = 10;
 
         int storedX = 1, storedY = 1, storedStars = 0, storedTime = 500, storedScore = 0, storedScreenID = 0;
         float XF = 0, YF = 0, storedXF = 1, storedYF = 1; //float coordinates
         int X, Y, stars, time, score, powerup, screenID, pipe, state, stopwatch; //a thread will read various values from the game and store them in these ints here
+
         string stageID; //a thread will read the stage ID value and store it in this string here
         List<string> stageList = new List<string>();
         Dictionary<string, int[]> dictScreen = new Dictionary<string, int[]>();
@@ -76,10 +66,6 @@ namespace SuperMarisaWorldPrac
             MinimizeBox = false;
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedSingle;
-
-            pSpeedBar.Minimum = 0;
-            pSpeedBar.Maximum = 120;
-            pSpeedBar.Step = 1;
 
             hook.KeyPressed += new EventHandler<KeyPressedEventArgs>(hook_KeyPressed);
             LoadHotkeys();
@@ -101,31 +87,66 @@ namespace SuperMarisaWorldPrac
                 Location = new Point(int.Parse(x), int.Parse(y)); //places the app at the same position it was in the last time
             }
 
-            if (!File.Exists(configpath + savestatesfilename)) //checks if savestatesfilename.cfg exists
-                CreateSaveStateTemplateFile();
-
-            toolTip.AutoPopDelay = 10000; toolTip.InitialDelay = 500; toolTip.ReshowDelay = 500;
-            toolTip.ShowAlways = true; //force the ToolTip text to be displayed whether or not the form is active.
+            toolTip.AutoPopDelay = 20000; toolTip.InitialDelay = 200; toolTip.ReshowDelay = 100;
+            toolTip.ShowAlways = true; //force the ToolTip text to be displayed whether or not the form is active
             toolTip.SetToolTip(checkLives, "Freezes lives at the specified value from the text field below.");
             toolTip.SetToolTip(checkStars, "Freezes stars at the specified value from the text field below.");
             toolTip.SetToolTip(checkTime, "Freezes time at the specified value from the text field below.");
             toolTip.SetToolTip(checkScore, "Freezes score at the specified value from the text field below.");
-            toolTip.SetToolTip(checkPowerup, "If checked and if Marisa has Miko or broom,\nshe will keep that powerup even after taking a hit.");
+            toolTip.SetToolTip(checkPowerup, "If checked and if Marisa has Miko or broom,\nshe will keep that powerup even after taking a hit.\nIf she has Rumia, she will keep her while this is checked.");
             toolTip.SetToolTip(checkPSpeedFly, "If checked and if Marisa has broom, she will be able\nto take off instantly and also have infinite flight.");
             toolTip.SetToolTip(checkIframes, "If checked, gives Marisa infinite invincibility frames.");
             toolTip.SetToolTip(checkSPREADMYWINGS, "If checked, allows Marisa to levitate by holding jump no matter the powerup she has.\nMarisa might glitch visually at times.");
             toolTip.SetToolTip(checkScoreRandomizer, "If checked and if 'Multiples of 10' is selected from the dropdown list\nthe score will have a value multiple of 10 between 0 and 300000 every 0.5s.\n" +
                                                      "If 'Very random' is selected, the score will have a value between 0 and 9999999 every 0.5s.");
-            toolTip.SetToolTip(buttonPowerup, "Cycles through powerups in the following order Normal -> Miko -> Broom.\nIf the 'Powerup' checkbox is checked, this button will do nothing.");
+            toolTip.SetToolTip(buttonPowerup, "Cycles through powerups in the following order Normal -> Miko -> Broom -> Rumia.\nIf the 'Powerup' checkbox is checked, this button will do nothing.");
 
-            stageList.Add("0-1-1"); stageList.Add("0-1-2"); stageList.Add("0-1-3");
-            stageList.Add("0-2-1"); stageList.Add("0-2-2"); stageList.Add("0-2-3");
-            stageList.Add("1-1-1"); stageList.Add("1-1-2"); stageList.Add("1-1-3");
-            stageList.Add("1-2-1"); stageList.Add("1-2-2"); stageList.Add("1-2-3");
-            stageList.Add("2-1-1"); stageList.Add("2-1-2"); stageList.Add("2-1-3");
-            stageList.Add("2-2-1"); stageList.Add("2-2-2"); stageList.Add("2-2-3");
-            stageList.Add("3-1-1"); stageList.Add("3-1-2"); stageList.Add("3-1-3");
-            stageList.Add("3-2-1"); stageList.Add("3-2-2"); stageList.Add("3-2-3");
+            if (!File.Exists(configpath + savestatesfilename)) //checks if savestatesfilename.cfg exists
+            {
+                using (StreamWriter sw = File.CreateText(configpath + savestatesfilename)) //creates the save state file template
+                {
+                    sw.WriteLine("[0-1-1]\n"); sw.WriteLine("[0-1-2]\n"); sw.WriteLine("[0-1-3]\n"); sw.WriteLine("[0-2-1]\n"); sw.WriteLine("[0-2-2]\n"); sw.WriteLine("[0-2-3]\n");
+                    sw.WriteLine("[1-1-1]\n"); sw.WriteLine("[1-1-2]\n"); sw.WriteLine("[1-1-3]\n"); sw.WriteLine("[1-2-1]\n"); sw.WriteLine("[1-2-2]\n"); sw.WriteLine("[1-2-3]\n");
+                    sw.WriteLine("[2-1-1]\n"); sw.WriteLine("[2-1-2]\n"); sw.WriteLine("[2-1-3]\n"); sw.WriteLine("[2-2-1]\n"); sw.WriteLine("[2-2-2]\n"); sw.WriteLine("[2-2-3]\n");
+                    sw.WriteLine("[3-1-1]\n"); sw.WriteLine("[3-1-2]\n"); sw.WriteLine("[3-1-3]\n"); sw.WriteLine("[3-2-1]\n"); sw.WriteLine("[3-2-2]\n"); sw.WriteLine("[3-2-3]\n");
+                    sw.WriteLine("[4-1-1]\n"); sw.WriteLine("[4-1-2]\n"); sw.WriteLine("[4-1-3]\n"); sw.WriteLine("[4-1-4]\n");
+                    sw.WriteLine("[4-2-1]\n"); sw.WriteLine("[4-2-2]\n"); sw.WriteLine("[4-2-3]\n"); sw.WriteLine("[4-2-4]\n");
+                    sw.WriteLine("[5-1-1]\n"); sw.WriteLine("[5-1-2]\n"); sw.WriteLine("[5-1-3]\n"); sw.WriteLine("[5-1-4]\n");
+                    sw.WriteLine("[5-2-1]\n"); sw.WriteLine("[5-2-2]\n"); sw.WriteLine("[5-2-3]\n"); sw.WriteLine("[5-2-4]\n");
+                    sw.WriteLine("[6-1-1]\n"); sw.WriteLine("[6-1-2]\n"); sw.WriteLine("[6-1-3]\n"); sw.WriteLine("[6-1-4]\n");
+                    sw.WriteLine("[6-2-1]\n"); sw.WriteLine("[6-2-2]\n"); sw.WriteLine("[6-2-3]\n"); sw.WriteLine("[6-2-4]\n");
+                    sw.WriteLine("[7-1-1]\n"); sw.WriteLine("[7-1-2]\n"); sw.WriteLine("[7-1-3]\n"); sw.WriteLine("[7-1-4]\n");
+                    sw.WriteLine("[7-2-1]\n"); sw.WriteLine("[7-2-2]\n"); sw.WriteLine("[7-2-3]\n"); sw.WriteLine("[7-2-4]\n");
+                }
+            }
+            else //if savestates.cfg exists, run a quick cleanup to remove empty lines that might be in the wrong spots
+            {
+                List<string> lst_lines = new List<string>();
+                using (StreamReader sr = File.OpenText(configpath + savestatesfilename))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        string line = sr.ReadLine();
+                        if (line.Length > 0)
+                        {
+                            if (line.Contains("["))
+                            {
+                                lst_lines.Add(""); //add an empty line before each stage ID
+                                lst_lines.Add(line);
+                            }
+                            else
+                                lst_lines.Add(line); //a save state line
+                        }
+                    }
+                }
+                lst_lines.RemoveAt(0); //removes the very first line which is empty
+                File.WriteAllLines(configpath + savestatesfilename, lst_lines.ToArray()); //write the new lines to the file
+            }
+
+            stageList.Add("0-1-1"); stageList.Add("0-1-2"); stageList.Add("0-1-3"); stageList.Add("0-2-1"); stageList.Add("0-2-2"); stageList.Add("0-2-3");
+            stageList.Add("1-1-1"); stageList.Add("1-1-2"); stageList.Add("1-1-3"); stageList.Add("1-2-1"); stageList.Add("1-2-2"); stageList.Add("1-2-3");
+            stageList.Add("2-1-1"); stageList.Add("2-1-2"); stageList.Add("2-1-3"); stageList.Add("2-2-1"); stageList.Add("2-2-2"); stageList.Add("2-2-3");
+            stageList.Add("3-1-1"); stageList.Add("3-1-2"); stageList.Add("3-1-3"); stageList.Add("3-2-1"); stageList.Add("3-2-2"); stageList.Add("3-2-3");
             stageList.Add("4-1-1"); stageList.Add("4-1-2"); stageList.Add("4-1-3"); stageList.Add("4-1-4");
             stageList.Add("4-2-1"); stageList.Add("4-2-2"); stageList.Add("4-2-3"); stageList.Add("4-2-4");
             stageList.Add("5-1-1"); stageList.Add("5-1-2"); stageList.Add("5-1-3"); stageList.Add("5-1-4");
@@ -174,37 +195,30 @@ namespace SuperMarisaWorldPrac
             dictScreen.Add("7-2-1", new int[] {1,3}); dictScreen.Add("7-2-2", new int[] {2,1, 3,2, 5,3, 6,4, 0,15, 1,16}); dictScreen.Add("7-2-4", new int[] {1,1, 2,16});
 
             //starting threads
-            new Thread(EnableDisablePopulateControls) { IsBackground = true }.Start();
+            //enables controls when playing and disables them when title screen/world map
+            new Thread(ManageControls) { IsBackground = true }.Start();
+            //attempts to find the correct offset for the stage ID pointer
             new Thread(FindCorrectOffset) { IsBackground = true }.Start();
+            //this thread will read values from the game every millisecond (doesn't require many cpu resources)
             new Thread(ReadValues) { IsBackground = true }.Start();
+            //sets or freezes values based on which checkboxes are checked
             new Thread(SetFreeze) { IsBackground = true }.Start();
+            //updates the X/Y labels
             new Thread(Coordinates) { IsBackground = true }.Start();
+            //keeps track of marisa's p-speed
             new Thread(PSpeed) { IsBackground = true }.Start();
+            //keeps track of marisa's flight time after p-speed
             new Thread(Flight) { IsBackground = true }.Start();
+            //updates how the power-up button looks based on the marisa's current power-up
             new Thread(TrackPowerup) { IsBackground = true }.Start();
+            //respawns marisa at stored coordinates if checkRespawn is checked and also makes respawns faster
             new Thread(TrackDeath) { IsBackground = true }.Start();
-            new Thread(TrackPSpeedAfterJump) { IsBackground = true }.Start(); //keeping this as its own thing for accurate readings
+            //tells at what point in the pspeed meter marisa jumped - keeping this as its own thing for accurate results
+            new Thread(TrackPSpeedAfterJump) { IsBackground = true }.Start();
+            //starts a timer upon entering a stage
             new Thread(Timers) { IsBackground = true }.Start();
+            //when checkScoreRandomizer is checked, this will generate random numbers
             new Thread(ScoreRandomizer) { IsBackground = true }.Start();
-        }
-
-        private void CreateSaveStateTemplateFile()
-        {
-            using (StreamWriter sw = File.CreateText(configpath + savestatesfilename)) //creates the save state file template
-            {
-                sw.WriteLine("[0-1-1]\n"); sw.WriteLine("[0-1-2]\n"); sw.WriteLine("[0-1-3]\n"); sw.WriteLine("[0-2-1]\n"); sw.WriteLine("[0-2-2]\n"); sw.WriteLine("[0-2-3]\n");
-                sw.WriteLine("[1-1-1]\n"); sw.WriteLine("[1-1-2]\n"); sw.WriteLine("[1-1-3]\n"); sw.WriteLine("[1-2-1]\n"); sw.WriteLine("[1-2-2]\n"); sw.WriteLine("[1-2-3]\n");
-                sw.WriteLine("[2-1-1]\n"); sw.WriteLine("[2-1-2]\n"); sw.WriteLine("[2-1-3]\n"); sw.WriteLine("[2-2-1]\n"); sw.WriteLine("[2-2-2]\n"); sw.WriteLine("[2-2-3]\n");
-                sw.WriteLine("[3-1-1]\n"); sw.WriteLine("[3-1-2]\n"); sw.WriteLine("[3-1-3]\n"); sw.WriteLine("[3-2-1]\n"); sw.WriteLine("[3-2-2]\n"); sw.WriteLine("[3-2-3]\n");
-                sw.WriteLine("[4-1-1]\n"); sw.WriteLine("[4-1-2]\n"); sw.WriteLine("[4-1-3]\n"); sw.WriteLine("[4-1-4]\n");
-                sw.WriteLine("[4-2-1]\n"); sw.WriteLine("[4-2-2]\n"); sw.WriteLine("[4-2-3]\n"); sw.WriteLine("[4-2-4]\n");
-                sw.WriteLine("[5-1-1]\n"); sw.WriteLine("[5-1-2]\n"); sw.WriteLine("[5-1-3]\n"); sw.WriteLine("[5-1-4]\n");
-                sw.WriteLine("[5-2-1]\n"); sw.WriteLine("[5-2-2]\n"); sw.WriteLine("[5-2-3]\n"); sw.WriteLine("[5-2-4]\n");
-                sw.WriteLine("[6-1-1]\n"); sw.WriteLine("[6-1-2]\n"); sw.WriteLine("[6-1-3]\n"); sw.WriteLine("[6-1-4]\n");
-                sw.WriteLine("[6-2-1]\n"); sw.WriteLine("[6-2-2]\n"); sw.WriteLine("[6-2-3]\n"); sw.WriteLine("[6-2-4]\n");
-                sw.WriteLine("[7-1-1]\n"); sw.WriteLine("[7-1-2]\n"); sw.WriteLine("[7-1-3]\n"); sw.WriteLine("[7-1-4]\n");
-                sw.WriteLine("[7-2-1]\n"); sw.WriteLine("[7-2-2]\n"); sw.WriteLine("[7-2-3]\n"); sw.WriteLine("[7-2-4]\n");
-            }
         }
 
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
@@ -218,20 +232,19 @@ namespace SuperMarisaWorldPrac
         #endregion
 
         #region threads
-        private void EnableDisablePopulateControls()
+        private void ManageControls()
         {
             int oldScreenID = -1;
             bool buttonsActivated = true, stageStarted = false;
-
             while (true)
             {
                 try
                 {
                     Invoke((MethodInvoker)delegate //using this because thread
                     {
-                        if (state != 0 && !MarisaDead) //if marisa is no longer on the title screen
+                        if (state != NEWSTAGE) //if marisa is no longer on the title screen
                         {
-                            if (MarisaDoko)
+                            if (MarisaDoko) //we know where marisa is
                             {
                                 if (state == PLAYING)
                                 {
@@ -257,46 +270,44 @@ namespace SuperMarisaWorldPrac
                                             StoreCoordinates();
                                             stageStarted = true;
                                         }
+                                        if (!buttonsActivated)
+                                        {
+                                            foreach (Control group in Controls)
+                                            {
+                                                if (group is GroupBox)
+                                                {
+                                                    if (group.Name != "groupSaves")
+                                                    {
+                                                        foreach (Control c in group.Controls)
+                                                        {
+                                                            if (c is Button) c.BackColor = Color.FromArgb(176, 196, 222);
+                                                            else if (c is CheckBox) ((CheckBox)c).Checked = false;
+                                                            c.Enabled = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            buttonsActivated = true;
+                                        }
                                         labelStatus.ForeColor = Color.Gold;
                                         labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID;
-                                        if (pipe != 0)
-                                            labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID + " entering pipe " + pipe;
-                                        else
-                                            labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID;
                                     }
                                 }
+                                else if (state == LOADING)
+                                    if (pipe != 0)
+                                        labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID + " entering pipe " + pipe;
                             }
-                            else
+                            else //we don't know where marisa is...
                             {
-                                foreach (Control c in groupSaves.Controls)
+                                foreach (Control c in groupSaves.Controls) //disable save states
                                 {
                                     if (c is Button) c.BackColor = Color.FromArgb(153, 153, 153);
                                     c.Enabled = false;
                                 }
-
                                 labelStatus.Text = "Unable to detect where Marisa is. Try launching the game with Win 7 compatibility...";
                                 labelStatus.ForeColor = Color.FromArgb(255, 82, 82);
                             }
 
-                            if (!buttonsActivated)
-                            {
-                                foreach (Control group in Controls)
-                                {
-                                    if (group is GroupBox)
-                                    {
-                                        if (group.Name != "groupSaves")
-                                        {
-                                            foreach (Control c in group.Controls)
-                                            {
-                                                if (c is Button) c.BackColor = Color.FromArgb(176, 196, 222);
-                                                else if (c is CheckBox) ((CheckBox)c).Checked = false;
-                                                c.Enabled = true;
-                                            }
-                                        }
-                                    }
-                                }
-                                buttonsActivated = true;
-                            }
                         }
                         else if (X == 0 && Y == 0) //if on title screen or world map
                         {
@@ -325,7 +336,7 @@ namespace SuperMarisaWorldPrac
                                     }
                                 }
                                 comboSaves.Items.Clear();
-                                labelStoredX.Text = "X:"; labelStoredY.Text = "Y:"; textX.Text = ""; textY.Text = "";
+                                labelStoredX.Text = "X:"; labelStoredY.Text = "Y:"; textX.Text = ""; textY.Text = ""; buttonPowerup.Text = "Power-up";
                                 labelStoredStars.Text = "Stars:"; labelStoredTime.Text = "Time:"; labelStoredScore.Text = "Score:";
                                 oldScreenID = -1; buttonsActivated = false; stageStarted = false;
                             }
@@ -334,13 +345,14 @@ namespace SuperMarisaWorldPrac
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Caught exception: " + ex.Message);
+                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                        Console.WriteLine(ex.Message);
                 }
                 Thread.Sleep(100);
             }
         }
 
-        private void FindCorrectOffset() //attempts to find the correct offset for the stage ID pointer
+        private void FindCorrectOffset()
         {
             while (true)
             {
@@ -365,7 +377,7 @@ namespace SuperMarisaWorldPrac
             }
         }
 
-        private void ReadValues() //this thread will read values from the game every millisecond (doesn't require many cpu resources)
+        private void ReadValues()
         {
             while (true)
             {
@@ -406,11 +418,10 @@ namespace SuperMarisaWorldPrac
                     }
 
                     if (checkSPREADMYWINGS.Checked)
-                        pm.Write(FIRST_OFFSET, ANIMATION_OFFSET, BitConverter.GetBytes(8));
+                        pm.Write(FIRST_OFFSET, ANIMATION_OFFSET, BitConverter.GetBytes(BROOM_FLY));
 
                     if (checkIframes.Checked)
                         pm.Write(FIRST_OFFSET, IFRAMES_OFFSET, BitConverter.GetBytes(180));
-
                     try
                     {
                         Invoke((MethodInvoker)delegate //using this because thread and because I access elements in the form
@@ -424,7 +435,11 @@ namespace SuperMarisaWorldPrac
                                     flagPowerup = true;
                                 }
                                 else
+                                {
                                     pm.Write(FIRST_OFFSET, POWERUP_OFFSET, localPowerup);
+                                    if (localPowerup[0] == RUMIA)
+                                        pm.Write(FIRST_OFFSET, RUMIA_OFFSET, BitConverter.GetBytes(715));
+                                }
                             }
                             else
                             {
@@ -441,7 +456,7 @@ namespace SuperMarisaWorldPrac
                                         int desiredStars = int.Parse(numericStars.Text);
                                         pm.Write(FIRST_OFFSET, STARS_OFFSET, BitConverter.GetBytes(desiredStars));
                                     }
-                                    catch (Exception)
+                                    catch (FormatException)
                                     {
                                         MessageBox.Show("That is not a number", "Nice number",
                                                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -458,7 +473,7 @@ namespace SuperMarisaWorldPrac
                                         int desiredTime = int.Parse(numericTime.Text);
                                         pm.Write(FIRST_OFFSET, TIME_OFFSET, BitConverter.GetBytes(desiredTime));
                                     }
-                                    catch (Exception)
+                                    catch (FormatException)
                                     {
                                         MessageBox.Show("That is not a number", "Nice number",
                                                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -475,7 +490,7 @@ namespace SuperMarisaWorldPrac
                                         int desiredScore = int.Parse(numericScore.Text);
                                         pm.Write(FIRST_OFFSET, SCORE_OFFSET, BitConverter.GetBytes(desiredScore));
                                     }
-                                    catch (Exception)
+                                    catch (FormatException)
                                     {
                                         MessageBox.Show("That is not a number", "Nice number",
                                                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -492,7 +507,7 @@ namespace SuperMarisaWorldPrac
                                         int desiredLives = int.Parse(numericLives.Text);
                                         pm.Write(FIRST_OFFSET, LIVES_OFFSET, BitConverter.GetBytes(desiredLives));
                                     }
-                                    catch (Exception)
+                                    catch (FormatException)
                                     {
                                         MessageBox.Show("That is not a number", "Nice number",
                                                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -503,7 +518,8 @@ namespace SuperMarisaWorldPrac
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Caught exception: " + ex.Message);
+                        if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                            Console.WriteLine(ex.Message);
                     }
                 }
                 else sleep = 100;
@@ -517,51 +533,55 @@ namespace SuperMarisaWorldPrac
             byte[] pSpeed = new byte[1];
             while (true)
             {
-                pSpeed = pm.Read(FIRST_OFFSET, PSPEED_OFFSET);
                 try
                 {
                     Invoke((MethodInvoker)delegate //using this because thread
                     {
-                        if (powerup == BROOM)
+                        if (state == PLAYING)
                         {
-                            sleep = 1;
-                            if (!checkPSpeedFly.Checked)
+                            if (powerup == BROOM)
                             {
-                                if (pSpeed[0] >= 1 || pSpeed[0] <= 120)
+                                if (!checkPSpeedFly.Checked)
                                 {
-                                    labelP.Text = pSpeed[0].ToString();
-                                    pSpeedBar.Value = pSpeed[0];
-                                    if (pSpeed[0] == 120)
-                                        pSpeedBar.ForeColor = Color.Blue;
-                                    else
-                                        pSpeedBar.ForeColor = Color.Green;
+                                    sleep = 1;
+                                    pSpeed = pm.Read(FIRST_OFFSET, PSPEED_OFFSET);
+                                    if (pSpeed[0] >= 1 || pSpeed[0] <= 120)
+                                    {
+                                        labelP.Text = pSpeed[0].ToString() + "/120";
+                                        pSpeedBar.Value = pSpeed[0];
+                                        if (pSpeed[0] == 120)
+                                            pSpeedBar.ForeColor = Color.Blue;
+                                        else
+                                            pSpeedBar.ForeColor = Color.Green;
+                                    }
+                                }
+                                else
+                                {
+                                    sleep = 100;
+                                    labelP.Text = "120/120";
+                                    pSpeedBar.Value = 120;
+                                    pSpeedBar.ForeColor = Color.Blue;
                                 }
                             }
                             else
                             {
-                                labelP.Text = "120";
-                                pSpeedBar.Value = 120;
-                                pSpeedBar.ForeColor = Color.Blue;
+                                sleep = 100;
+                                labelP.Text = "";
+                                pSpeedBar.Value = 0;
                             }
                         }
-                        else if (XF == 0 && YF == 0)
+                        else
                         {
                             sleep = 100;
                             labelP.Text = "";
                             pSpeedBar.Value = 0;
                         }
-                        else
-                        {
-                            sleep = 100;
-                            labelP.Text = "No broom";
-                            pSpeedBar.Value = 120;
-                            pSpeedBar.ForeColor = Color.Red;
-                        }
                     });
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Caught exception: " + ex.Message);
+                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                        Console.WriteLine(ex.Message);
                 }
                 Thread.Sleep(sleep);
             }
@@ -569,63 +589,138 @@ namespace SuperMarisaWorldPrac
 
         private void Flight()
         {
+            int sleep = 100;
             byte[] flight = new byte[1];
+            byte[] animation = new byte[1];
             while (true)
             {
-                flight = pm.Read(FIRST_OFFSET, FLIGHT_OFFSET);
-                if (powerup == BROOM && flight[0] > 0 && flight[0] <= 180)
-                    flightBar.Invoke((MethodInvoker)delegate () { flightBar.Value = flight[0]; });
-                else
-                    flightBar.Invoke((MethodInvoker)delegate () { flightBar.Value = 0; });
-                Thread.Sleep(1);
+                try
+                {
+                    Invoke((MethodInvoker)delegate //using this because thread
+                    {
+                        if (state == PLAYING)
+                        {
+                            if (powerup == BROOM)
+                            {
+                                if (!checkPSpeedFly.Checked)
+                                {
+                                    sleep = 1;
+                                    flight = pm.Read(FIRST_OFFSET, FLIGHT_OFFSET);
+                                    animation = pm.Read(FIRST_OFFSET, ANIMATION_OFFSET);
+                                    if (animation[0] == BROOM_FLY && flight[0] >= 0 && flight[0] <= 180)
+                                    {
+                                        flightBar.Value = flight[0];
+                                        labelFlight.Text = flight[0].ToString() + "/180";
+                                    }
+                                    else
+                                    {
+                                        labelFlight.Text = "";
+                                        flightBar.Value = 0;
+                                    }
+                                }
+                                else
+                                {
+                                    sleep = 100;
+                                    labelFlight.Text = "180/180";
+                                    flightBar.Value = 180;
+                                }
+                            }
+                            else
+                            {
+                                sleep = 100;
+                                labelFlight.Text = "";
+                                flightBar.Value = 0;
+                            }
+                        }
+                        else
+                        {
+                            sleep = 100;
+                            labelFlight.Text = "";
+                            flightBar.Value = 0;
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                        Console.WriteLine(ex.Message);
+                }
+                Thread.Sleep(sleep);
             }
         }
 
         private void TrackPSpeedAfterJump()
         {
+            int sleep = 100;
             bool flagStore = false;
             byte[] pSpeed = new byte[1];
             byte[] groundedFlag = new byte[1];
-
+            labelJumpP.BackColor = Color.Transparent;
             while (true)
             {
-                pSpeed = pm.Read(FIRST_OFFSET, PSPEED_OFFSET);
-                groundedFlag = pm.Read(FIRST_OFFSET, GROUNDED_FLAG_OFFSET);
-
-                if (powerup != BROOM)
-                    labelJumpP.Invoke((MethodInvoker)delegate () { labelJumpP.Text = ""; });
-
-                if (powerup == BROOM && groundedFlag[0] == 0 && !flagStore) //if marisa has her broom and has jumped and the flag is false
+                try
                 {
-                    if (pSpeed[0] != 120)
-                        labelJumpP.Invoke((MethodInvoker)delegate () { labelJumpP.Text = "Jumped at: " + pSpeed[0]; });
-                    else
-                        labelJumpP.Invoke((MethodInvoker)delegate () { labelJumpP.Text = "Jumped at: " + pSpeed[0] + "!!!!"; });
-                    flagStore = true;
-                }
-                if (powerup == BROOM && groundedFlag[0] == 1 && flagStore) //if marisa has her broom and has landed
-                    flagStore = false; //set the flag back to false
+                    Invoke((MethodInvoker)delegate //using this because thread
+                    {
+                        if (state == PLAYING)
+                        {
+                            if (powerup == BROOM)
+                            {
+                                sleep = 1;
+                                pSpeed = pm.Read(FIRST_OFFSET, PSPEED_OFFSET);
+                                groundedFlag = pm.Read(FIRST_OFFSET, GROUNDED_FLAG_OFFSET);
 
-                Thread.Sleep(1);
+                                if (groundedFlag[0] == 0 && !flagStore) //if marisa has jumped and the flag is false
+                                {
+                                    if (pSpeed[0] != 120)
+                                        labelJumpP.Text = pSpeed[0].ToString();
+                                    else
+                                        labelJumpP.Text = pSpeed[0].ToString() + "!!";
+                                    flagStore = true;
+                                }
+                                if (groundedFlag[0] == 1 && flagStore) //if marisa has landed
+                                    flagStore = false; //set the flag back to false
+                            }
+                            else
+                            {
+                                sleep = 100;
+                                labelJumpP.Text = "";
+                            }
+                        }
+                        else
+                        {
+                            labelJumpP.Text = "";
+                            sleep = 100;
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                        Console.WriteLine(ex.Message);
+                }
+                Thread.Sleep(sleep);
             }
         }
 
         private void Coordinates()
         {
+            int sleep = 100;
             while (true)
             {
                 try
                 {
-                    //update labels
                     Invoke((MethodInvoker)delegate //using this because thread
                     {
                         if (state == PLAYING)
                         {
+                            sleep = 50;
                             labelX.Text = "X: " + XF.ToString("0.000");
                             labelY.Text = "Y: " + YF.ToString("0.000");
                         }
                         else
                         {
+                            sleep = 100;
                             labelX.Text = "X: 0.000";
                             labelY.Text = "Y: 0.000";
                         }
@@ -633,9 +728,10 @@ namespace SuperMarisaWorldPrac
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Caught exception: " + ex.Message);
+                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                        Console.WriteLine(ex.Message);
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(sleep);
             }
         }
         
@@ -653,38 +749,58 @@ namespace SuperMarisaWorldPrac
                         Thread.Sleep(200);
                         pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(PLAYING));
                     }
-                    MarisaDead = true;
                 }
-                else MarisaDead = false;
                 Thread.Sleep(100);
             }
         }
 
         private void TrackPowerup()
         {
+            int sleep = 250;
             while (true)
             {
-                if (powerup == MARISA && state == PLAYING) //when no powerup -> offer switching to miko
+                if (state == PLAYING)
                 {
-                    buttonPowerup.Invoke((MethodInvoker)delegate () { buttonPowerup.Text = "Power-up: Switch to Miko"; });
-                    buttonPowerup.BackColor = Color.FromArgb(255, 153, 153);
+                    sleep = 100;
+                    try
+                    {
+                        Invoke((MethodInvoker)delegate //using this because thread
+                        {
+                            if (powerup == MARISA) //when no powerup -> offer switching to miko
+                            {
+                                buttonPowerup.Text = "Power-up: Switch to Miko";
+                                buttonPowerup.BackColor = Color.FromArgb(255, 153, 153);
+                            }
+                            else if (powerup == MIKO) //when miko -> offer switching to broom
+                            {
+                                buttonPowerup.Text = "Power-up: Switch to Broom";
+                                buttonPowerup.BackColor = Color.FromArgb(240, 190, 80);
+                            }
+                            else if (powerup == BROOM) //when broom -> offer switching to rumia
+                            {
+                                buttonPowerup.Text = "Power-up: Switch to Rumia";
+                                buttonPowerup.BackColor = Color.FromArgb(255, 230, 80);
+                            }
+                            else if (powerup == RUMIA) //when rumia -> offer switching back to normal
+                            {
+                                buttonPowerup.Text = "Power-up: Back to normal";
+                                buttonPowerup.BackColor = Color.FromArgb(153, 153, 153);
+                            }
+                            else
+                            {
+                                buttonPowerup.Text = "Power-up: Back to normal";
+                                buttonPowerup.BackColor = Color.FromArgb(153, 153, 153);
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                            Console.WriteLine(ex.Message);
+                    }
                 }
-                else if (powerup == MIKO) //when miko -> offer switching to broom
-                {
-                    buttonPowerup.Invoke((MethodInvoker)delegate () { buttonPowerup.Text = "Power-up: Switch to Broom"; });
-                    buttonPowerup.BackColor = Color.FromArgb(255, 209, 146);
-                }
-                else if (powerup == BROOM) //when broom -> offer switching to marisa
-                {
-                    buttonPowerup.Invoke((MethodInvoker)delegate () { buttonPowerup.Text = "Power-up: Back to normal"; });
-                    buttonPowerup.BackColor = Color.FromArgb(175, 175, 175);
-                }
-                else
-                {
-                    buttonPowerup.Invoke((MethodInvoker)delegate () { buttonPowerup.Text = "Power-up: Back to normal"; });
-                    buttonPowerup.BackColor = Color.FromArgb(153, 153, 153);
-                }
-                Thread.Sleep(100);
+                else sleep = 250;
+                Thread.Sleep(sleep);
             }
         }
 
@@ -704,52 +820,64 @@ namespace SuperMarisaWorldPrac
                 {
                     if (swSaveState.ElapsedTicks != 0) //if the save state timer was running, resume it too
                         swSaveState.Start();
-                    labelTimerStage.Invoke((MethodInvoker)delegate () { labelTimerStage.Text = stringStopwatch; });
-                    labelTimerSaveState.Invoke((MethodInvoker)delegate () { labelTimerSaveState.Text = swSaveState.Elapsed.ToString("mm\\:ss\\.fff"); });
+                    try
+                    {
+                        Invoke((MethodInvoker)delegate //using this because thread
+                        {
+                            labelTimerStage.Text = stringStopwatch;
+                            labelTimerSaveState.Text = swSaveState.Elapsed.ToString("mm\\:ss\\.fff");
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                            Console.WriteLine(ex.Message);
+                    }
                 }
                 //if game is loading, paused or on the title screen -> pause timers
                 else if (state == LOADING || state == PAUSED || (X == 0 && Y == 0))
                     swSaveState.Stop();
-                Thread.Sleep(1);
+                Thread.Sleep(10);
             }
         }
 
         private void ScoreRandomizer()
         {
             Random random = new Random();
-            int sleep = 100, randomNumber = 0;
+            int randomNumber = 0;
             while(true)
             {
-                try
+                if (state == PLAYING)
                 {
-                    //update labels
-                    Invoke((MethodInvoker)delegate //using this because thread
+                    try
                     {
-                        if (checkScoreRandomizer.Checked)
+                        Invoke((MethodInvoker)delegate //using this because thread
                         {
-                            checkScore.Enabled = false; numericScore.Enabled = false;
-                            if (comboScoreRandomizer.Text == "Very random") //generate random numbers
+                            if (checkScoreRandomizer.Checked)
                             {
-                                randomNumber = random.Next(0, 9999999);
-                                sleep = 500;
+                                checkScore.Enabled = false; numericScore.Enabled = false;
+                                if (comboScoreRandomizer.Text == "Very random") //generate random numbers
+                                {
+                                    randomNumber = random.Next(0, 9999999);
+                                }
+                                else //generate reasonable values that are multiples of 10
+                                {
+                                    randomNumber = random.Next(0, 30000);
+                                    randomNumber = randomNumber * 10;
+                                }
+                                pm.Write(FIRST_OFFSET, SCORE_OFFSET, BitConverter.GetBytes(randomNumber));
                             }
-                            else //generate reasonable values that are multiples of 10
-                            {
-                                randomNumber = random.Next(0, 30000);
-                                randomNumber = randomNumber * 10;
-                                sleep = 500;
-                            }
-                            pm.Write(FIRST_OFFSET, SCORE_OFFSET, BitConverter.GetBytes(randomNumber));
-                        }
-                        else
-                        { checkScore.Enabled = true; numericScore.Enabled = true; }
-                    });
+                            else
+                            { checkScore.Enabled = true; numericScore.Enabled = true; }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                            Console.WriteLine(ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Caught exception: " + ex.Message);
-                }
-                Thread.Sleep(sleep);
+                Thread.Sleep(500);
             }
         }
         #endregion
@@ -964,6 +1092,11 @@ namespace SuperMarisaWorldPrac
                 pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(MIKO));
             else if (powerup == MIKO)
                 pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(BROOM));
+            else if (powerup == BROOM)
+            {
+                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(RUMIA));
+                pm.Write(FIRST_OFFSET, RUMIA_OFFSET, BitConverter.GetBytes(715));
+            }
             else
                 pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(MARISA));
         }
@@ -1011,7 +1144,7 @@ namespace SuperMarisaWorldPrac
                         pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(desiredY));
                     }
                 }
-                catch (Exception)
+                catch (FormatException)
                 {
                     MessageBox.Show("That is not a number",
                                     "Nice number",
@@ -1134,16 +1267,22 @@ namespace SuperMarisaWorldPrac
                                         currentScreenFound = true;
                                         break;
                                     }
+                                    else //marisa is in the screen just after the spawn screen -> send her back to spawn
+                                    {
+                                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(NEWSTAGE));
+                                        currentScreenFound = true;
+                                        break;
+                                    }
                                 }
                             }
                             i++;
                         }
-                        else //if player is in kaguya's stage -> send them to screen 2 with shmup powerup and specific coordinates
+                        else //if marisa is in kaguya's stage -> send them to screen 2 with shmup powerup and specific coordinates
                         {
                             pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(SHMUP));
                             pm.Write(FIRST_OFFSET, SCREEN_ID_OFFSET, BitConverter.GetBytes(2));
-                            pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(1077411840));
-                            pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(1088421888));
+                            pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(1077411840)); //specific x coord
+                            pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(1088421888)); //specific y coord
                             currentScreenFound = true;
                         }
                     }
@@ -1179,16 +1318,22 @@ namespace SuperMarisaWorldPrac
                                         currentScreenFound = true;
                                         break;
                                     }
+                                    else //marisa is in the last screen possible -> send her back to spawn
+                                    {
+                                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(NEWSTAGE));
+                                        currentScreenFound = true;
+                                        break;
+                                    }
                                 }
                             }
                             i++;
                         }
-                        else //if player is in kaguya's stage -> send them to screen 2 with shmup powerup and specific coordinates
+                        else //if marisa is in kaguya's stage -> send them to screen 2 with shmup powerup and specific coordinates
                         {
                             pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(SHMUP));
                             pm.Write(FIRST_OFFSET, SCREEN_ID_OFFSET, BitConverter.GetBytes(2));
-                            pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(1077411840));
-                            pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(1088421888));
+                            pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(1077411840)); //specific x coord
+                            pm.Write(FIRST_OFFSET, Y_OFFSET, BitConverter.GetBytes(1088421888)); //specific y coord
                             currentScreenFound = true;
                         }
                     }

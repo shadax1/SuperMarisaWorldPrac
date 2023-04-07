@@ -31,7 +31,7 @@ namespace SuperMarisaWorldPrac
             Process[] pname = Process.GetProcessesByName("SuperMarisaWorld");
             if (pname.Length == 0)
             {
-                MessageBox.Show("Process SuperMarisaWorld.exe wasn't found, make sure the game is running or place this executable inside the game's folder and start it again.",
+                MessageBox.Show("Process SuperMarisaWorld.exe wasn't found, make sure the game is running.",
                                 "Marisa Not Found",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);

@@ -57,10 +57,11 @@
             this.buttonSave = new System.Windows.Forms.Button();
             this.comboSaves = new System.Windows.Forms.ComboBox();
             this.groupPspeed = new System.Windows.Forms.GroupBox();
+            this.labelFlight = new System.Windows.Forms.Label();
             this.flightBar = new System.Windows.Forms.ProgressBar();
             this.labelJumpP = new System.Windows.Forms.Label();
             this.buttonPowerup = new System.Windows.Forms.Button();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.labelStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.checkStars = new System.Windows.Forms.CheckBox();
             this.checkTime = new System.Windows.Forms.CheckBox();
@@ -78,7 +79,7 @@
             this.comboScoreRandomizer = new System.Windows.Forms.ComboBox();
             this.checkScoreRandomizer = new System.Windows.Forms.CheckBox();
             this.checkIframes = new System.Windows.Forms.CheckBox();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpAboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupSaves = new System.Windows.Forms.GroupBox();
@@ -89,13 +90,13 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupCoordinates.SuspendLayout();
             this.groupPspeed.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericStars)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericScore)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericLives)).BeginInit();
             this.groupFreeze.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            this.menuStrip.SuspendLayout();
             this.groupSaves.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -125,18 +126,19 @@
             // 
             this.labelP.AutoSize = true;
             this.labelP.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelP.Location = new System.Drawing.Point(9, 16);
+            this.labelP.Location = new System.Drawing.Point(415, 29);
             this.labelP.Name = "labelP";
-            this.labelP.Size = new System.Drawing.Size(49, 16);
+            this.labelP.Size = new System.Drawing.Size(53, 16);
             this.labelP.TabIndex = 9;
-            this.labelP.Text = "Current";
+            this.labelP.Text = "120/120";
             // 
             // pSpeedBar
             // 
-            this.pSpeedBar.Location = new System.Drawing.Point(6, 35);
+            this.pSpeedBar.Location = new System.Drawing.Point(6, 27);
             this.pSpeedBar.Maximum = 120;
             this.pSpeedBar.Name = "pSpeedBar";
-            this.pSpeedBar.Size = new System.Drawing.Size(461, 15);
+            this.pSpeedBar.Size = new System.Drawing.Size(407, 23);
+            this.pSpeedBar.Step = 1;
             this.pSpeedBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pSpeedBar.TabIndex = 10;
             // 
@@ -406,36 +408,47 @@
             // groupPspeed
             // 
             this.groupPspeed.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.groupPspeed.Controls.Add(this.labelFlight);
             this.groupPspeed.Controls.Add(this.labelP);
             this.groupPspeed.Controls.Add(this.flightBar);
-            this.groupPspeed.Controls.Add(this.labelJumpP);
             this.groupPspeed.Controls.Add(this.pSpeedBar);
+            this.groupPspeed.Controls.Add(this.labelJumpP);
             this.groupPspeed.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupPspeed.Location = new System.Drawing.Point(12, 348);
+            this.groupPspeed.Location = new System.Drawing.Point(12, 338);
             this.groupPspeed.Name = "groupPspeed";
-            this.groupPspeed.Size = new System.Drawing.Size(473, 75);
+            this.groupPspeed.Size = new System.Drawing.Size(473, 85);
             this.groupPspeed.TabIndex = 16;
             this.groupPspeed.TabStop = false;
             this.groupPspeed.Text = "P-speed";
             // 
+            // labelFlight
+            // 
+            this.labelFlight.AutoSize = true;
+            this.labelFlight.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelFlight.Location = new System.Drawing.Point(415, 58);
+            this.labelFlight.Name = "labelFlight";
+            this.labelFlight.Size = new System.Drawing.Size(53, 16);
+            this.labelFlight.TabIndex = 13;
+            this.labelFlight.Text = "180/180";
+            // 
             // flightBar
             // 
-            this.flightBar.Location = new System.Drawing.Point(6, 54);
+            this.flightBar.Location = new System.Drawing.Point(6, 56);
             this.flightBar.Maximum = 180;
             this.flightBar.Name = "flightBar";
-            this.flightBar.Size = new System.Drawing.Size(461, 15);
+            this.flightBar.Size = new System.Drawing.Size(407, 23);
             this.flightBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.flightBar.TabIndex = 12;
             // 
             // labelJumpP
             // 
             this.labelJumpP.AutoSize = true;
-            this.labelJumpP.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelJumpP.Location = new System.Drawing.Point(333, 16);
+            this.labelJumpP.BackColor = System.Drawing.SystemColors.Control;
+            this.labelJumpP.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelJumpP.Location = new System.Drawing.Point(438, 7);
             this.labelJumpP.Name = "labelJumpP";
-            this.labelJumpP.Size = new System.Drawing.Size(76, 16);
+            this.labelJumpP.Size = new System.Drawing.Size(0, 15);
             this.labelJumpP.TabIndex = 11;
-            this.labelJumpP.Text = "Jumped at: ";
             // 
             // buttonPowerup
             // 
@@ -448,17 +461,17 @@
             this.buttonPowerup.UseVisualStyleBackColor = true;
             this.buttonPowerup.Click += new System.EventHandler(this.buttonPowerup_Click);
             // 
-            // statusStrip1
+            // statusStrip
             // 
-            this.statusStrip1.BackColor = System.Drawing.SystemColors.ControlText;
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusStrip.BackColor = System.Drawing.SystemColors.ControlText;
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.labelStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 426);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(493, 22);
-            this.statusStrip1.SizingGrip = false;
-            this.statusStrip1.TabIndex = 18;
-            this.statusStrip1.Text = "statusStrip1";
+            this.statusStrip.Location = new System.Drawing.Point(0, 426);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(493, 22);
+            this.statusStrip.SizingGrip = false;
+            this.statusStrip.TabIndex = 18;
+            this.statusStrip.Text = "statusStrip1";
             // 
             // labelStatus
             // 
@@ -528,6 +541,7 @@
             this.checkScore.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.checkScore.Location = new System.Drawing.Point(174, 23);
             this.checkScore.Name = "checkScore";
+            this.checkScore.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.checkScore.Size = new System.Drawing.Size(54, 17);
             this.checkScore.TabIndex = 15;
             this.checkScore.Text = "Score";
@@ -673,16 +687,16 @@
             this.checkIframes.Text = "Invincibility frames";
             this.checkIframes.UseVisualStyleBackColor = true;
             // 
-            // menuStrip1
+            // menuStrip
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.settingsToolStripMenuItem,
             this.helpAboutToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(493, 24);
-            this.menuStrip1.TabIndex = 19;
-            this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip.Name = "menuStrip";
+            this.menuStrip.Size = new System.Drawing.Size(493, 24);
+            this.menuStrip.TabIndex = 19;
+            this.menuStrip.Text = "menuStrip1";
             // 
             // settingsToolStripMenuItem
             // 
@@ -707,7 +721,7 @@
             this.groupSaves.Controls.Add(this.buttonSave);
             this.groupSaves.Controls.Add(this.checkSave);
             this.groupSaves.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupSaves.Location = new System.Drawing.Point(12, 220);
+            this.groupSaves.Location = new System.Drawing.Point(12, 211);
             this.groupSaves.Name = "groupSaves";
             this.groupSaves.Size = new System.Drawing.Size(207, 124);
             this.groupSaves.TabIndex = 34;
@@ -718,7 +732,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(229, 301);
+            this.label6.Location = new System.Drawing.Point(228, 301);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(73, 15);
             this.label6.TabIndex = 35;
@@ -728,7 +742,7 @@
             // 
             this.labelTimerStage.AutoSize = true;
             this.labelTimerStage.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerStage.Location = new System.Drawing.Point(331, 302);
+            this.labelTimerStage.Location = new System.Drawing.Point(330, 302);
             this.labelTimerStage.Name = "labelTimerStage";
             this.labelTimerStage.Size = new System.Drawing.Size(62, 15);
             this.labelTimerStage.TabIndex = 37;
@@ -738,7 +752,7 @@
             // 
             this.labelTimerSaveState.AutoSize = true;
             this.labelTimerSaveState.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerSaveState.Location = new System.Drawing.Point(331, 320);
+            this.labelTimerSaveState.Location = new System.Drawing.Point(330, 320);
             this.labelTimerSaveState.Name = "labelTimerSaveState";
             this.labelTimerSaveState.Size = new System.Drawing.Size(62, 15);
             this.labelTimerSaveState.TabIndex = 42;
@@ -748,7 +762,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(229, 320);
+            this.label10.Location = new System.Drawing.Point(228, 320);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(97, 15);
             this.label10.TabIndex = 41;
@@ -764,31 +778,31 @@
             this.Controls.Add(this.labelTimerStage);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.groupSaves);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.statusStrip);
+            this.Controls.Add(this.menuStrip);
             this.Controls.Add(this.groupPspeed);
             this.Controls.Add(this.groupCoordinates);
             this.Controls.Add(this.groupFreeze);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.menuStrip1;
+            this.MainMenuStrip = this.menuStrip;
             this.Name = "MainWindow";
-            this.Text = "SuperMarisaWorldPrac v1.5.2";
+            this.Text = "SuperMarisaWorldPrac v1.6";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.groupCoordinates.ResumeLayout(false);
             this.groupCoordinates.PerformLayout();
             this.groupPspeed.ResumeLayout(false);
             this.groupPspeed.PerformLayout();
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericStars)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericScore)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericLives)).EndInit();
             this.groupFreeze.ResumeLayout(false);
             this.groupFreeze.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.menuStrip.ResumeLayout(false);
+            this.menuStrip.PerformLayout();
             this.groupSaves.ResumeLayout(false);
             this.groupSaves.PerformLayout();
             this.ResumeLayout(false);
@@ -811,7 +825,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupPspeed;
-        private System.Windows.Forms.Label labelJumpP;
         private System.Windows.Forms.Button buttonLoad;
         private System.Windows.Forms.Button buttonStore;
         private System.Windows.Forms.Button buttonPowerup;
@@ -824,7 +837,7 @@
         private System.Windows.Forms.Label labelStoredTime;
         private System.Windows.Forms.Label labelStoredY;
         private System.Windows.Forms.Label labelStoredX;
-        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel labelStatus;
         private System.Windows.Forms.Button buttonNextScreen;
         private System.Windows.Forms.Button buttonPreviousScreen;
@@ -841,7 +854,7 @@
         private System.Windows.Forms.CheckBox checkRespawn;
         private System.Windows.Forms.CheckBox checkSPREADMYWINGS;
         private System.Windows.Forms.GroupBox groupFreeze;
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpAboutToolStripMenuItem;
         private System.Windows.Forms.GroupBox groupSaves;
@@ -854,6 +867,8 @@
         private System.Windows.Forms.ComboBox comboScoreRandomizer;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ProgressBar flightBar;
+        private System.Windows.Forms.Label labelFlight;
+        private System.Windows.Forms.Label labelJumpP;
     }
 }
 
