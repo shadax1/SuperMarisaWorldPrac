@@ -115,6 +115,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <None Include="Resources\BombBlock2.png" />
+    <None Include="Resources\BombBlock.png" />
     <None Include="Resources\Koakuma 2.png" />
     <None Include="Resources\Koakuma 1.png" />
   </ItemGroup>

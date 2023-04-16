@@ -26,22 +26,22 @@ namespace SuperMarisaWorldPrac
         Keys[] keys = new Keys[numberHotkeys];
         string[] mods = new string[numberHotkeys];
 
-        bool MarisaDoko = false; //false means the pointer offset for stage IDs wasn't found - true means found
         Stopwatch swSaveState = new Stopwatch(); //stopwatch that starts upon loading a save state
         #endregion
 
         #region memory stuff
         static ProcessMemory pm = new ProcessMemory();
         int[] FIRST_OFFSET = { 0x155438 }; //offset to be added to "SuperMarisaWorld.exe" when reading/writing
-        int[] FIRST_OFFSET_STAGE_ID = { 0x15542C }; //offset to be added to "SuperMarisaWorld.exe" when reading/writing
+        int[] FIRST_OFFSET_STAGE_ID = { 0x155424 }; //offset to be added to "SuperMarisaWorld.exe" when reading/writing
 
         //pointer offsets
         int[] STATE_OFFSET = { -0x30 };
         int[] SCREEN_ID_OFFSET = { 0x14 }, PIPE_OFFSET = { 0xADC }, X_OFFSET = { 0x1C }, Y_OFFSET = { 0x28 };
-        int[] LIVES_OFFSET = { 0xA88 }, STARS_OFFSET = { 0xA8C }, TIME_OFFSET = { 0xA98 }, SCORE_OFFSET = { 0xA9C };
+        int[] LIVES_OFFSET = { 0xA88 }, STARS_OFFSET = { 0xA8C }, TIME_OFFSET = { 0xA98 }, SCORE_OFFSET = { 0xA9C }, SCOREBONUS_OFFSET = { 0xE4 };
         int[] ANIMATION_OFFSET = { 0x50 }, POWERUP_OFFSET = { 0x54 }, RUMIA_OFFSET = { 0x5C }, GROUNDED_FLAG_OFFSET = { 0x74 };
         int[] PSPEED_OFFSET = { 0x88 }, FLIGHT_OFFSET = { 0x90 }, IFRAMES_OFFSET = { 0x94 }, STOPWATCH_OFFSET = { 0x94C };
-        int[] STAGE_ID_OFFSET = { 0x2C8, 0x108, 0x47 }; //the first value can change a lot from one PC to another...
+        int[] BOMBTIMER_OFFSET = { 0xB00 }, BOMB_OFFSET = { 0xB04 };
+        int[] STAGE_ID_OFFSET = { 0x80, 0x14, 0x68, 0x108, 0x47 }; //I believe in these offsets, hopefully no more pc shenanigans
 
         //state constants
         const int NEWSTAGE = 0, SPAWNING = 1, PLAYING = 2, LOADING = 3, DEAD = 4, WIN = 5, PAUSED = 6;
@@ -49,10 +49,14 @@ namespace SuperMarisaWorldPrac
         const int MARISA = 0, MIKO = 1, BROOM = 2, RUMIA = 3, SHMUP = 9;
         //animation constants
         const int IDLE = 0, RUN = 1, SLIDE = 3, JUMP = 4, DRILL = 5, BROOM_FLY = 8, BROOM_HOVER = 9, DEATH = 10;
+        //bomb block constants
+        const int BOMB_ACTIVE = 0, BOMB_INACTIVE = 1;
 
         int storedX = 1, storedY = 1, storedStars = 0, storedTime = 500, storedScore = 0, storedScreenID = 0;
         float XF = 0, YF = 0, storedXF = 1, storedYF = 1; //float coordinates
-        int X, Y, stars, time, score, powerup, screenID, pipe, state, stopwatch; //a thread will read various values from the game and store them in these ints here
+        
+        //a thread will read various values from the game and store them in these ints here
+        int X, Y, stars, time, score, powerup, screenID, pipe, state, stopwatch, bomb, rumia;
 
         string stageID; //a thread will read the stage ID value and store it in this string here
         List<string> stageList = new List<string>();
@@ -99,7 +103,9 @@ namespace SuperMarisaWorldPrac
             toolTip.SetToolTip(checkSPREADMYWINGS, "If checked, allows Marisa to levitate by holding jump no matter the powerup she has.\nMarisa might glitch visually at times.");
             toolTip.SetToolTip(checkScoreRandomizer, "If checked and if 'Multiples of 10' is selected from the dropdown list\nthe score will have a value multiple of 10 between 0 and 300000 every 0.5s.\n" +
                                                      "If 'Very random' is selected, the score will have a value between 0 and 9999999 every 0.5s.");
-            toolTip.SetToolTip(buttonPowerup, "Cycles through powerups in the following order Normal -> Miko -> Broom -> Rumia.\nIf the 'Powerup' checkbox is checked, this button will do nothing.");
+            toolTip.SetToolTip(checkIL, "If checked, this will put Marisa back to the start of the stage upon dying or falling into a pit.");
+            toolTip.SetToolTip(buttonPowerup, "Cycles through power-ups in the following order Normal -> Miko -> Broom -> Rumia.\nIf the 'Powerup' checkbox is checked, this button will do nothing.");
+            toolTip.SetToolTip(buttonBomb, "Activates or deactivates bomb blocks.");
 
             if (!File.Exists(configpath + savestatesfilename)) //checks if savestatesfilename.cfg exists
             {
@@ -197,20 +203,14 @@ namespace SuperMarisaWorldPrac
             //starting threads
             //enables controls when playing and disables them when title screen/world map
             new Thread(ManageControls) { IsBackground = true }.Start();
-            //attempts to find the correct offset for the stage ID pointer
-            new Thread(FindCorrectOffset) { IsBackground = true }.Start();
             //this thread will read values from the game every millisecond (doesn't require many cpu resources)
             new Thread(ReadValues) { IsBackground = true }.Start();
             //sets or freezes values based on which checkboxes are checked
             new Thread(SetFreeze) { IsBackground = true }.Start();
             //updates the X/Y labels
             new Thread(Coordinates) { IsBackground = true }.Start();
-            //keeps track of marisa's p-speed
-            new Thread(PSpeed) { IsBackground = true }.Start();
-            //keeps track of marisa's flight time after p-speed
-            new Thread(Flight) { IsBackground = true }.Start();
             //updates how the power-up button looks based on the marisa's current power-up
-            new Thread(TrackPowerup) { IsBackground = true }.Start();
+            new Thread(TrackPowerupBomb) { IsBackground = true }.Start();
             //respawns marisa at stored coordinates if checkRespawn is checked and also makes respawns faster
             new Thread(TrackDeath) { IsBackground = true }.Start();
             //tells at what point in the pspeed meter marisa jumped - keeping this as its own thing for accurate results
@@ -244,70 +244,56 @@ namespace SuperMarisaWorldPrac
                     {
                         if (state != NEWSTAGE) //if marisa is no longer on the title screen
                         {
-                            if (MarisaDoko) //we know where marisa is
+                            if (state == PLAYING)
                             {
-                                if (state == PLAYING)
+                                if (oldScreenID != screenID)
                                 {
-                                    if (oldScreenID != screenID)
+                                    oldScreenID = screenID;
+                                    foreach (Control c in groupSaves.Controls)
                                     {
-                                        oldScreenID = screenID;
-                                        foreach (Control c in groupSaves.Controls)
+                                        if (c is Button) c.BackColor = Color.FromArgb(176, 196, 222);
+                                        c.Enabled = true;
+                                    }
+                                    if (dictScreen[stageID] == null) //if the stage only has a single screen
+                                    {
+                                        buttonPreviousScreen.Enabled = false; buttonNextScreen.Enabled = false;
+                                        buttonPreviousScreen.BackColor = Color.FromArgb(153, 153, 153);
+                                        buttonNextScreen.BackColor = Color.FromArgb(153, 153, 153);
+                                    }
+                                    if (!stageStarted)
+                                    {
+                                        UpdateComboSaveStates();
+                                        comboSaves.SelectedIndex = -1;
+                                        comboScoreRandomizer.SelectedIndex = 0;
+                                        StoreCoordinates();
+                                        stageStarted = true;
+                                    }
+                                    if (!buttonsActivated)
+                                    {
+                                        foreach (Control group in Controls)
                                         {
-                                            if (c is Button) c.BackColor = Color.FromArgb(176, 196, 222);
-                                            c.Enabled = true;
-                                        }
-                                        if (dictScreen[stageID] == null) //if the stage only has a single screen
-                                        {
-                                            buttonPreviousScreen.Enabled = false; buttonNextScreen.Enabled = false;
-                                            buttonPreviousScreen.BackColor = Color.FromArgb(153, 153, 153);
-                                            buttonNextScreen.BackColor = Color.FromArgb(153, 153, 153);
-                                        }
-                                        if (!stageStarted)
-                                        {
-                                            UpdateComboSaveStates();
-                                            comboSaves.SelectedIndex = -1;
-                                            comboScoreRandomizer.SelectedIndex = 0;
-                                            StoreCoordinates();
-                                            stageStarted = true;
-                                        }
-                                        if (!buttonsActivated)
-                                        {
-                                            foreach (Control group in Controls)
+                                            if (group is GroupBox)
                                             {
-                                                if (group is GroupBox)
+                                                if (group.Name != "groupSaves")
                                                 {
-                                                    if (group.Name != "groupSaves")
+                                                    foreach (Control c in group.Controls)
                                                     {
-                                                        foreach (Control c in group.Controls)
-                                                        {
-                                                            if (c is Button) c.BackColor = Color.FromArgb(176, 196, 222);
-                                                            else if (c is CheckBox) ((CheckBox)c).Checked = false;
-                                                            c.Enabled = true;
-                                                        }
+                                                        if (c is Button) c.BackColor = Color.FromArgb(176, 196, 222);
+                                                        else if (c is CheckBox) ((CheckBox)c).Checked = false;
+                                                        c.Enabled = true;
                                                     }
                                                 }
                                             }
-                                            buttonsActivated = true;
                                         }
-                                        labelStatus.ForeColor = Color.Gold;
-                                        labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID;
+                                        buttonsActivated = true;
                                     }
+                                    labelStatus.ForeColor = Color.Gold;
+                                    labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID;
                                 }
-                                else if (state == LOADING)
-                                    if (pipe != 0)
-                                        labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID + " entering pipe " + pipe;
                             }
-                            else //we don't know where marisa is...
-                            {
-                                foreach (Control c in groupSaves.Controls) //disable save states
-                                {
-                                    if (c is Button) c.BackColor = Color.FromArgb(153, 153, 153);
-                                    c.Enabled = false;
-                                }
-                                labelStatus.Text = "Unable to detect where Marisa is. Try launching the game with Win 7 compatibility...";
-                                labelStatus.ForeColor = Color.FromArgb(255, 82, 82);
-                            }
-
+                            else if (state == LOADING)
+                                if (pipe != 0)
+                                    labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID + " entering pipe " + pipe;
                         }
                         else if (X == 0 && Y == 0) //if on title screen or world map
                         {
@@ -352,31 +338,6 @@ namespace SuperMarisaWorldPrac
             }
         }
 
-        private void FindCorrectOffset()
-        {
-            while (true)
-            {
-                if (state == PLAYING) //marisa is in a stage
-                {
-                    int[] LOCAL_STAGE_ID_OFFSET = { 0x0, 0x108, 0x47 }; //temporary array of offsets
-                    for (int increment = 0x0; increment < 0x10000; increment += 0x1) //go from 0x0 until 0xFFFF
-                    {
-                        LOCAL_STAGE_ID_OFFSET[0] = increment; //set the first value of temp array with the increment value
-                        byte[] buffer = pm.Read(FIRST_OFFSET_STAGE_ID, LOCAL_STAGE_ID_OFFSET); //read with array offset
-                        string localStageID = Encoding.Default.GetString(buffer); //convert result to string
-                        if (stageList.Contains(localStageID)) //if result matches a stage ID (ex: 4-1-2)
-                        {
-                            STAGE_ID_OFFSET = LOCAL_STAGE_ID_OFFSET; //store temp array into the real array
-                            MarisaDoko = true;
-                            break;
-                        }
-                    }
-                    break; //thread will end after this
-                }
-                Thread.Sleep(100);
-            }
-        }
-
         private void ReadValues()
         {
             while (true)
@@ -389,7 +350,9 @@ namespace SuperMarisaWorldPrac
                 buffer = pm.Read(FIRST_OFFSET, TIME_OFFSET); time = BitConverter.ToInt32(buffer, 0);
                 buffer = pm.Read(FIRST_OFFSET, SCORE_OFFSET); score = BitConverter.ToInt32(buffer, 0);
                 buffer = pm.Read(FIRST_OFFSET, POWERUP_OFFSET); powerup = BitConverter.ToInt32(buffer, 0);
+                buffer = pm.Read(FIRST_OFFSET, RUMIA_OFFSET); rumia = BitConverter.ToInt32(buffer, 0);
                 buffer = pm.Read(FIRST_OFFSET, PIPE_OFFSET); pipe = BitConverter.ToInt32(buffer, 0);
+                buffer = pm.Read(FIRST_OFFSET, BOMB_OFFSET); bomb = BitConverter.ToInt32(buffer, 0);
                 buffer = pm.Read(FIRST_OFFSET, STATE_OFFSET); state = BitConverter.ToInt32(buffer, 0);
 
                 buffer = pm.Read(FIRST_OFFSET, SCREEN_ID_OFFSET);
@@ -533,13 +496,13 @@ namespace SuperMarisaWorldPrac
             byte[] pSpeed = new byte[1];
             while (true)
             {
-                try
+                if (state == PLAYING)
                 {
-                    Invoke((MethodInvoker)delegate //using this because thread
+                    if (powerup == BROOM)
                     {
-                        if (state == PLAYING)
+                        try
                         {
-                            if (powerup == BROOM)
+                            Invoke((MethodInvoker)delegate //using this because thread
                             {
                                 if (!checkPSpeedFly.Checked)
                                 {
@@ -562,27 +525,19 @@ namespace SuperMarisaWorldPrac
                                     pSpeedBar.Value = 120;
                                     pSpeedBar.ForeColor = Color.Blue;
                                 }
-                            }
-                            else
-                            {
-                                sleep = 100;
-                                labelP.Text = "";
-                                pSpeedBar.Value = 0;
-                            }
+                            });
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            sleep = 100;
-                            labelP.Text = "";
-                            pSpeedBar.Value = 0;
+                            if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                                Console.WriteLine(ex.Message);
                         }
-                    });
+                    }
+                    else
+                        break;
                 }
-                catch (Exception ex)
-                {
-                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
-                        Console.WriteLine(ex.Message);
-                }
+                else
+                    sleep = 100;
                 Thread.Sleep(sleep);
             }
         }
@@ -594,13 +549,13 @@ namespace SuperMarisaWorldPrac
             byte[] animation = new byte[1];
             while (true)
             {
-                try
+                if (state == PLAYING)
                 {
-                    Invoke((MethodInvoker)delegate //using this because thread
+                    if (powerup == BROOM)
                     {
-                        if (state == PLAYING)
+                        try
                         {
-                            if (powerup == BROOM)
+                            Invoke((MethodInvoker)delegate //using this because thread
                             {
                                 if (!checkPSpeedFly.Checked)
                                 {
@@ -624,27 +579,73 @@ namespace SuperMarisaWorldPrac
                                     labelFlight.Text = "180/180";
                                     flightBar.Value = 180;
                                 }
-                            }
-                            else
-                            {
-                                sleep = 100;
-                                labelFlight.Text = "";
-                                flightBar.Value = 0;
-                            }
+                            });
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            sleep = 100;
-                            labelFlight.Text = "";
-                            flightBar.Value = 0;
+                            if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                                Console.WriteLine(ex.Message);
                         }
-                    });
+                    }
+                    else
+                        sleep = 100;
                 }
-                catch (Exception ex)
+                else
+                    sleep = 100;
+                Thread.Sleep(sleep);
+            }
+        }
+
+        private void Rumia()
+        {
+            int sleep = 100;
+            float rumiaTimer;
+            int rumiaMaximum = 715;
+            while (true)
+            {
+                if (state == PLAYING)
                 {
-                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
-                        Console.WriteLine(ex.Message);
+                    if (powerup == RUMIA)
+                    {
+                        try
+                        {
+
+                            Invoke((MethodInvoker)delegate //using this because thread
+                            {
+
+                                sleep = 1;
+                                if (rumia >= 0 && rumia <= rumiaMaximum)
+                                {
+                                    try
+                                    {
+                                        pSpeedBar.Value = rumia;
+                                        pSpeedBar.ForeColor = Color.FromArgb(255, 175, 59);
+                                        rumiaTimer = (float)rumia / 60;
+                                        labelP.Text = rumiaTimer.ToString("0.00");
+                                    }
+                                    catch (ArgumentOutOfRangeException) //progress bar max value is still 120
+                                    {
+                                        Thread.Sleep(100); //give it some time to be set to 715
+                                    }
+                                }
+                                else if (rumia > rumiaMaximum)
+                                {
+                                    rumiaMaximum = rumia;
+                                    pSpeedBar.Maximum = rumiaMaximum;
+                                }
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                                Console.WriteLine(ex.Message);
+                        }
+                    }
+                    else
+                        break;
                 }
+                else
+                    sleep = 100;
                 Thread.Sleep(sleep);
             }
         }
@@ -739,24 +740,43 @@ namespace SuperMarisaWorldPrac
         {
             while (true)
             {
-                if (state == DEAD)
+                try
                 {
-                    if (checkRespawn.Checked)
-                        LoadStoredValues();
-                    else
+                    Invoke((MethodInvoker)delegate //using this because thread
                     {
-                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(NEWSTAGE));
-                        Thread.Sleep(200);
-                        pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(PLAYING));
-                    }
+                        if (!checkIL.Checked) //not IL mode, reload stored values upon death
+                        {
+                            if (state == DEAD || YF < 0)
+                                LoadStoredValues();
+                        }
+                        else //IL mode - only restart the stage upon death
+                        {
+                            if (state == DEAD || YF < 0)
+                            {
+                                pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(NEWSTAGE));
+                                Thread.Sleep(1750);
+                                pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(PLAYING));
+                                pm.Write(FIRST_OFFSET, STOPWATCH_OFFSET, BitConverter.GetBytes(0));
+                                pm.Write(FIRST_OFFSET, SCOREBONUS_OFFSET, BitConverter.GetBytes(1000));
+                                pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(0));
+                            }
+                        }
+                    });
                 }
-                Thread.Sleep(100);
+                catch (Exception ex)
+                {
+                    if (ex is ObjectDisposedException || ex is InvalidOperationException)
+                        Console.WriteLine(ex.Message);
+                }
+                Thread.Sleep(10);
             }
         }
-
-        private void TrackPowerup()
+        
+        private void TrackPowerupBomb()
         {
             int sleep = 250;
+            bool flagRumia = false;
+            bool flagBroom = false;
             while (true)
             {
                 if (state == PLAYING)
@@ -768,28 +788,80 @@ namespace SuperMarisaWorldPrac
                         {
                             if (powerup == MARISA) //when no powerup -> offer switching to miko
                             {
+                                labelP.Text = "";
+                                pSpeedBar.Value = 0;
+                                labelFlight.Text = "";
+                                flightBar.Value = 0;
+
                                 buttonPowerup.Text = "Power-up: Switch to Miko";
                                 buttonPowerup.BackColor = Color.FromArgb(255, 153, 153);
+                                flagBroom = false;
+                                flagRumia = false;
                             }
                             else if (powerup == MIKO) //when miko -> offer switching to broom
                             {
+                                labelP.Text = "";
+                                pSpeedBar.Value = 0;
+                                labelFlight.Text = "";
+                                flightBar.Value = 0;
+
                                 buttonPowerup.Text = "Power-up: Switch to Broom";
                                 buttonPowerup.BackColor = Color.FromArgb(240, 190, 80);
+                                flagBroom = false;
+                                flagRumia = false;
                             }
                             else if (powerup == BROOM) //when broom -> offer switching to rumia
                             {
+                                if (!flagBroom)
+                                {
+                                    pSpeedBar.Maximum = 120;
+                                    //keeps track of marisa's p-speed
+                                    new Thread(PSpeed) { IsBackground = true }.Start();
+                                    //keeps track of marisa's flight time after p-speed
+                                    new Thread(Flight) { IsBackground = true }.Start();
+                                    flagBroom = true;
+                                }
                                 buttonPowerup.Text = "Power-up: Switch to Rumia";
                                 buttonPowerup.BackColor = Color.FromArgb(255, 230, 80);
+                                flagRumia = false;
                             }
                             else if (powerup == RUMIA) //when rumia -> offer switching back to normal
                             {
+                                if (!flagRumia)
+                                {
+                                    pSpeedBar.Maximum = 715;
+                                    labelFlight.Text = "";
+                                    flightBar.Value = 0;
+                                    //keeps track of rumia's duration
+                                    new Thread(Rumia) { IsBackground = true }.Start();
+                                    flagRumia = true;
+                                }
                                 buttonPowerup.Text = "Power-up: Back to normal";
                                 buttonPowerup.BackColor = Color.FromArgb(153, 153, 153);
+                                flagBroom = false;
                             }
                             else
                             {
+                                labelP.Text = "";
+                                pSpeedBar.Value = 0;
+                                labelFlight.Text = "";
+                                flightBar.Value = 0;
+
                                 buttonPowerup.Text = "Power-up: Back to normal";
                                 buttonPowerup.BackColor = Color.FromArgb(153, 153, 153);
+                                flagBroom = false;
+                                flagRumia = false;
+                            }
+
+                            if (bomb == BOMB_ACTIVE)
+                            {
+                                buttonBomb.Image = Properties.Resources.BombBlock2;
+                                buttonBomb.ImageAlign = ContentAlignment.MiddleCenter;
+                            }
+                            else
+                            {
+                                buttonBomb.Image = Properties.Resources.BombBlock;
+                                buttonBomb.ImageAlign = ContentAlignment.MiddleCenter;
                             }
                         });
                     }
@@ -799,7 +871,8 @@ namespace SuperMarisaWorldPrac
                             Console.WriteLine(ex.Message);
                     }
                 }
-                else sleep = 250;
+                else
+                    sleep = 250;
                 Thread.Sleep(sleep);
             }
         }
@@ -1242,6 +1315,22 @@ namespace SuperMarisaWorldPrac
         private void buttonPowerup_Click(object sender, EventArgs e)
         {
             ChangePowerup();
+        }
+
+        private void buttonBomb_Click(object sender, EventArgs e)
+        {
+            if (state == PLAYING)
+            {
+                if (bomb == BOMB_INACTIVE)
+                {
+                    pm.Write(FIRST_OFFSET, BOMB_OFFSET, BitConverter.GetBytes(BOMB_ACTIVE));
+                    pm.Write(FIRST_OFFSET, BOMBTIMER_OFFSET, BitConverter.GetBytes(600));
+                }
+                else
+                {
+                    pm.Write(FIRST_OFFSET, BOMB_OFFSET, BitConverter.GetBytes(BOMB_INACTIVE));
+                }
+            }
         }
 
         private void buttonPreviousScreen_Click(object sender, EventArgs e)

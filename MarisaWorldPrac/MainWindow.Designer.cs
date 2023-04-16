@@ -73,9 +73,9 @@
             this.numericScore = new System.Windows.Forms.NumericUpDown();
             this.numericTime = new System.Windows.Forms.NumericUpDown();
             this.numericLives = new System.Windows.Forms.NumericUpDown();
-            this.checkRespawn = new System.Windows.Forms.CheckBox();
             this.checkSPREADMYWINGS = new System.Windows.Forms.CheckBox();
             this.groupFreeze = new System.Windows.Forms.GroupBox();
+            this.checkIL = new System.Windows.Forms.CheckBox();
             this.comboScoreRandomizer = new System.Windows.Forms.ComboBox();
             this.checkScoreRandomizer = new System.Windows.Forms.CheckBox();
             this.checkIframes = new System.Windows.Forms.CheckBox();
@@ -88,6 +88,7 @@
             this.labelTimerSaveState = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.buttonBomb = new System.Windows.Forms.Button();
             this.groupCoordinates.SuspendLayout();
             this.groupPspeed.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -419,7 +420,7 @@
             this.groupPspeed.Size = new System.Drawing.Size(473, 85);
             this.groupPspeed.TabIndex = 16;
             this.groupPspeed.TabStop = false;
-            this.groupPspeed.Text = "P-speed";
+            this.groupPspeed.Text = "P-speed/Rumia";
             // 
             // labelFlight
             // 
@@ -477,8 +478,9 @@
             // 
             this.labelStatus.ForeColor = System.Drawing.SystemColors.Control;
             this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(317, 17);
-            this.labelStatus.Text = "If you see this, there is a problem. Click the \'Rescan\' button";
+            this.labelStatus.Size = new System.Drawing.Size(451, 17);
+            this.labelStatus.Text = "If you see this, there is a problem. Try launching the game with Win 7 compatibil" +
+    "ity...";
             // 
             // checkStars
             // 
@@ -604,17 +606,6 @@
             0,
             0});
             // 
-            // checkRespawn
-            // 
-            this.checkRespawn.AutoSize = true;
-            this.checkRespawn.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.25F);
-            this.checkRespawn.Location = new System.Drawing.Point(6, 193);
-            this.checkRespawn.Name = "checkRespawn";
-            this.checkRespawn.Size = new System.Drawing.Size(225, 17);
-            this.checkRespawn.TabIndex = 23;
-            this.checkRespawn.Text = "Respawn at stored coordinates after death";
-            this.checkRespawn.UseVisualStyleBackColor = true;
-            // 
             // checkSPREADMYWINGS
             // 
             this.checkSPREADMYWINGS.AutoSize = true;
@@ -628,12 +619,13 @@
             // 
             // groupFreeze
             // 
+            this.groupFreeze.Controls.Add(this.buttonBomb);
+            this.groupFreeze.Controls.Add(this.checkIL);
             this.groupFreeze.Controls.Add(this.comboScoreRandomizer);
             this.groupFreeze.Controls.Add(this.checkScoreRandomizer);
             this.groupFreeze.Controls.Add(this.checkIframes);
             this.groupFreeze.Controls.Add(this.checkSPREADMYWINGS);
             this.groupFreeze.Controls.Add(this.buttonPowerup);
-            this.groupFreeze.Controls.Add(this.checkRespawn);
             this.groupFreeze.Controls.Add(this.numericLives);
             this.groupFreeze.Controls.Add(this.numericTime);
             this.groupFreeze.Controls.Add(this.numericScore);
@@ -651,6 +643,17 @@
             this.groupFreeze.TabIndex = 15;
             this.groupFreeze.TabStop = false;
             this.groupFreeze.Text = "Freeze/set values";
+            // 
+            // checkIL
+            // 
+            this.checkIL.AutoSize = true;
+            this.checkIL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkIL.Location = new System.Drawing.Point(6, 193);
+            this.checkIL.Name = "checkIL";
+            this.checkIL.Size = new System.Drawing.Size(64, 17);
+            this.checkIL.TabIndex = 43;
+            this.checkIL.Text = "IL mode";
+            this.checkIL.UseVisualStyleBackColor = true;
             // 
             // comboScoreRandomizer
             // 
@@ -768,6 +771,17 @@
             this.label10.TabIndex = 41;
             this.label10.Text = "Save state timer:";
             // 
+            // buttonBomb
+            // 
+            this.buttonBomb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonBomb.Image = global::SuperMarisaWorldPrac.Properties.Resources.BombBlock;
+            this.buttonBomb.Location = new System.Drawing.Point(211, 78);
+            this.buttonBomb.Name = "buttonBomb";
+            this.buttonBomb.Size = new System.Drawing.Size(33, 33);
+            this.buttonBomb.TabIndex = 44;
+            this.buttonBomb.UseVisualStyleBackColor = true;
+            this.buttonBomb.Click += new System.EventHandler(this.buttonBomb_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -786,7 +800,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainWindow";
-            this.Text = "SuperMarisaWorldPrac v1.6";
+            this.Text = "SuperMarisaWorldPrac v1.7";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.groupCoordinates.ResumeLayout(false);
@@ -851,7 +865,6 @@
         private System.Windows.Forms.NumericUpDown numericScore;
         private System.Windows.Forms.NumericUpDown numericTime;
         private System.Windows.Forms.NumericUpDown numericLives;
-        private System.Windows.Forms.CheckBox checkRespawn;
         private System.Windows.Forms.CheckBox checkSPREADMYWINGS;
         private System.Windows.Forms.GroupBox groupFreeze;
         private System.Windows.Forms.MenuStrip menuStrip;
@@ -869,6 +882,8 @@
         private System.Windows.Forms.ProgressBar flightBar;
         private System.Windows.Forms.Label labelFlight;
         private System.Windows.Forms.Label labelJumpP;
+        private System.Windows.Forms.CheckBox checkIL;
+        private System.Windows.Forms.Button buttonBomb;
     }
 }
 
