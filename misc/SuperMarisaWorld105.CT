@@ -10,6 +10,23 @@
       <Address>"SuperMarisaWorld.exe"</Address>
       <CheatEntries>
         <CheatEntry>
+          <ID>121</ID>
+          <Description>"stage ID"</Description>
+          <Color>0080FF</Color>
+          <VariableType>String</VariableType>
+          <Length>5</Length>
+          <Unicode>0</Unicode>
+          <ZeroTerminate>1</ZeroTerminate>
+          <Address>"SuperMarisaWorld.exe"+00155424</Address>
+          <Offsets>
+            <Offset>47</Offset>
+            <Offset>108</Offset>
+            <Offset>68</Offset>
+            <Offset>14</Offset>
+            <Offset>80</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
           <ID>171</ID>
           <Description>"state (1 spawn - 2 playing - 3 loading? - 4 death - 5 win - 6 pause - 8 rumia transform/dialog)"</Description>
           <ShowAsSigned>0</ShowAsSigned>
@@ -62,6 +79,16 @@
           </Offsets>
         </CheatEntry>
         <CheatEntry>
+          <ID>99</ID>
+          <Description>"animation? (0 idle - 1 run - 3 slide - 4 air - 5 drill - 8 broom fly - 9 broom hover - 10 dead)"</Description>
+          <Color>FF0080</Color>
+          <VariableType>Byte</VariableType>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>50</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
           <ID>98</ID>
           <Description>"powerup (0 normal - 1 miko - 2 broom - 3 rumia - 9 shmup)"</Description>
           <Color>FF0080</Color>
@@ -92,18 +119,18 @@
           </Offsets>
         </CheatEntry>
         <CheatEntry>
-          <ID>99</ID>
-          <Description>"animation? (0 idle - 1 run - 3 slide - 4 air - 5 drill - 8 broom fly - 9 broom hover - 10 dead)"</Description>
+          <ID>227</ID>
+          <Description>"running speed (max is 0.1875)"</Description>
           <Color>FF0080</Color>
-          <VariableType>Byte</VariableType>
+          <VariableType>Float</VariableType>
           <Address>"SuperMarisaWorld.exe"+00155438</Address>
           <Offsets>
-            <Offset>50</Offset>
+            <Offset>64</Offset>
           </Offsets>
         </CheatEntry>
         <CheatEntry>
           <ID>108</ID>
-          <Description>"grounded (1 yes - 0 no)"</Description>
+          <Description>"grounded (0 no - 1 yes - 2 mokou platform - 3 drill)"</Description>
           <Color>FF0080</Color>
           <VariableType>Byte</VariableType>
           <Address>"SuperMarisaWorld.exe"+00155438</Address>
@@ -149,6 +176,16 @@
           <Address>"SuperMarisaWorld.exe"+00155438</Address>
           <Offsets>
             <Offset>94</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>193</ID>
+          <Description>"score bonus"</Description>
+          <Color>FF8000</Color>
+          <VariableType>2 Bytes</VariableType>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>E4</Offset>
           </Offsets>
         </CheatEntry>
         <CheatEntry>
@@ -202,19 +239,6 @@
           </Offsets>
         </CheatEntry>
         <CheatEntry>
-          <ID>182</ID>
-          <Description>"text time"</Description>
-          <Color>FF8000</Color>
-          <VariableType>String</VariableType>
-          <Length>4</Length>
-          <Unicode>0</Unicode>
-          <ZeroTerminate>1</ZeroTerminate>
-          <Address>"SuperMarisaWorld.exe"+00155438</Address>
-          <Offsets>
-            <Offset>BBC</Offset>
-          </Offsets>
-        </CheatEntry>
-        <CheatEntry>
           <ID>104</ID>
           <Description>"time (in seconds counting down)"</Description>
           <Color>FF8000</Color>
@@ -255,6 +279,39 @@
           </Offsets>
         </CheatEntry>
         <CheatEntry>
+          <ID>225</ID>
+          <Description>"bomb block timer"</Description>
+          <Color>FF8000</Color>
+          <VariableType>2 Bytes</VariableType>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>B00</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>224</ID>
+          <Description>"bomb block activated (0 active - 1 not active)"</Description>
+          <Color>FF8000</Color>
+          <VariableType>Byte</VariableType>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>B04</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>182</ID>
+          <Description>"text time"</Description>
+          <Color>FF8000</Color>
+          <VariableType>String</VariableType>
+          <Length>4</Length>
+          <Unicode>0</Unicode>
+          <ZeroTerminate>1</ZeroTerminate>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>BBC</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
           <ID>107</ID>
           <Description>"fps"</Description>
           <Color>FF8000</Color>
@@ -264,52 +321,35 @@
             <Offset>E80</Offset>
           </Offsets>
         </CheatEntry>
+        <CheatEntry>
+          <ID>214</ID>
+          <Description>"kaguya hp"</Description>
+          <Color>FF0000</Color>
+          <VariableType>4 Bytes</VariableType>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>C0</Offset>
+            <Offset>10</Offset>
+            <Offset>0</Offset>
+            <Offset>17C</Offset>
+            <Offset>C</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>228</ID>
+          <Description>"kaguya hp"</Description>
+          <Color>FF0000</Color>
+          <VariableType>4 Bytes</VariableType>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>C0</Offset>
+            <Offset>10</Offset>
+            <Offset>4</Offset>
+            <Offset>17C</Offset>
+            <Offset>C</Offset>
+          </Offsets>
+        </CheatEntry>
       </CheatEntries>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>121</ID>
-      <Description>"stage ID"</Description>
-      <Color>0080FF</Color>
-      <VariableType>String</VariableType>
-      <Length>5</Length>
-      <Unicode>0</Unicode>
-      <ZeroTerminate>1</ZeroTerminate>
-      <Address>"SuperMarisaWorld.exe"+0015542C</Address>
-      <Offsets>
-        <Offset>47</Offset>
-        <Offset>108</Offset>
-        <Offset>2C8</Offset>
-      </Offsets>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>186</ID>
-      <Description>"stage ID"</Description>
-      <Color>0080FF</Color>
-      <VariableType>String</VariableType>
-      <Length>5</Length>
-      <Unicode>0</Unicode>
-      <ZeroTerminate>1</ZeroTerminate>
-      <Address>"SuperMarisaWorld.exe"+0015542C</Address>
-      <Offsets>
-        <Offset>47</Offset>
-        <Offset>108</Offset>
-        <Offset>308</Offset>
-      </Offsets>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>185</ID>
-      <Description>"stage ID"</Description>
-      <Color>0080FF</Color>
-      <VariableType>String</VariableType>
-      <Length>5</Length>
-      <Unicode>0</Unicode>
-      <ZeroTerminate>1</ZeroTerminate>
-      <Address>"SuperMarisaWorld.exe"+0015542C</Address>
-      <Offsets>
-        <Offset>47</Offset>
-        <Offset>108</Offset>
-        <Offset>318</Offset>
-      </Offsets>
     </CheatEntry>
   </CheatEntries>
   <CheatCodes>

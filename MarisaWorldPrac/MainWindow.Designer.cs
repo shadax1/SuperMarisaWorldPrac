@@ -75,10 +75,11 @@
             this.numericLives = new System.Windows.Forms.NumericUpDown();
             this.checkSPREADMYWINGS = new System.Windows.Forms.CheckBox();
             this.groupFreeze = new System.Windows.Forms.GroupBox();
-            this.checkIL = new System.Windows.Forms.CheckBox();
+            this.buttonBomb = new System.Windows.Forms.Button();
             this.comboScoreRandomizer = new System.Windows.Forms.ComboBox();
             this.checkScoreRandomizer = new System.Windows.Forms.CheckBox();
             this.checkIframes = new System.Windows.Forms.CheckBox();
+            this.checkIL = new System.Windows.Forms.CheckBox();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpAboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -88,7 +89,7 @@
             this.labelTimerSaveState = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.buttonBomb = new System.Windows.Forms.Button();
+            this.runSpeedBar = new System.Windows.Forms.ProgressBar();
             this.groupCoordinates.SuspendLayout();
             this.groupPspeed.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -135,10 +136,11 @@
             // 
             // pSpeedBar
             // 
-            this.pSpeedBar.Location = new System.Drawing.Point(6, 27);
+            this.pSpeedBar.ForeColor = System.Drawing.Color.Green;
+            this.pSpeedBar.Location = new System.Drawing.Point(53, 27);
             this.pSpeedBar.Maximum = 120;
             this.pSpeedBar.Name = "pSpeedBar";
-            this.pSpeedBar.Size = new System.Drawing.Size(407, 23);
+            this.pSpeedBar.Size = new System.Drawing.Size(360, 23);
             this.pSpeedBar.Step = 1;
             this.pSpeedBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pSpeedBar.TabIndex = 10;
@@ -409,6 +411,7 @@
             // groupPspeed
             // 
             this.groupPspeed.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.groupPspeed.Controls.Add(this.runSpeedBar);
             this.groupPspeed.Controls.Add(this.labelFlight);
             this.groupPspeed.Controls.Add(this.labelP);
             this.groupPspeed.Controls.Add(this.flightBar);
@@ -420,7 +423,7 @@
             this.groupPspeed.Size = new System.Drawing.Size(473, 85);
             this.groupPspeed.TabIndex = 16;
             this.groupPspeed.TabStop = false;
-            this.groupPspeed.Text = "P-speed/Rumia";
+            this.groupPspeed.Text = "Speed/P-speed/Rumia";
             // 
             // labelFlight
             // 
@@ -434,6 +437,7 @@
             // 
             // flightBar
             // 
+            this.flightBar.ForeColor = System.Drawing.SystemColors.HotTrack;
             this.flightBar.Location = new System.Drawing.Point(6, 56);
             this.flightBar.Maximum = 180;
             this.flightBar.Name = "flightBar";
@@ -454,9 +458,9 @@
             // buttonPowerup
             // 
             this.buttonPowerup.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonPowerup.Location = new System.Drawing.Point(6, 216);
+            this.buttonPowerup.Location = new System.Drawing.Point(6, 196);
             this.buttonPowerup.Name = "buttonPowerup";
-            this.buttonPowerup.Size = new System.Drawing.Size(248, 43);
+            this.buttonPowerup.Size = new System.Drawing.Size(209, 43);
             this.buttonPowerup.TabIndex = 17;
             this.buttonPowerup.Text = "Power-up";
             this.buttonPowerup.UseVisualStyleBackColor = true;
@@ -478,9 +482,8 @@
             // 
             this.labelStatus.ForeColor = System.Drawing.SystemColors.Control;
             this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(451, 17);
-            this.labelStatus.Text = "If you see this, there is a problem. Try launching the game with Win 7 compatibil" +
-    "ity...";
+            this.labelStatus.Size = new System.Drawing.Size(354, 17);
+            this.labelStatus.Text = "If you see this, there is a problem or you are fighting against Aya...";
             // 
             // checkStars
             // 
@@ -532,9 +535,9 @@
             this.checkPSpeedFly.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.checkPSpeedFly.Location = new System.Drawing.Point(6, 101);
             this.checkPSpeedFly.Name = "checkPSpeedFly";
-            this.checkPSpeedFly.Size = new System.Drawing.Size(145, 17);
+            this.checkPSpeedFly.Size = new System.Drawing.Size(167, 17);
             this.checkPSpeedFly.TabIndex = 14;
-            this.checkPSpeedFly.Text = "Infinite P-speed and flight";
+            this.checkPSpeedFly.Text = "Max P-speed and infinite flight";
             this.checkPSpeedFly.UseVisualStyleBackColor = true;
             // 
             // checkScore
@@ -620,7 +623,6 @@
             // groupFreeze
             // 
             this.groupFreeze.Controls.Add(this.buttonBomb);
-            this.groupFreeze.Controls.Add(this.checkIL);
             this.groupFreeze.Controls.Add(this.comboScoreRandomizer);
             this.groupFreeze.Controls.Add(this.checkScoreRandomizer);
             this.groupFreeze.Controls.Add(this.checkIframes);
@@ -639,21 +641,22 @@
             this.groupFreeze.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupFreeze.Location = new System.Drawing.Point(225, 27);
             this.groupFreeze.Name = "groupFreeze";
-            this.groupFreeze.Size = new System.Drawing.Size(260, 265);
+            this.groupFreeze.Size = new System.Drawing.Size(260, 247);
             this.groupFreeze.TabIndex = 15;
             this.groupFreeze.TabStop = false;
             this.groupFreeze.Text = "Freeze/set values";
             // 
-            // checkIL
+            // buttonBomb
             // 
-            this.checkIL.AutoSize = true;
-            this.checkIL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkIL.Location = new System.Drawing.Point(6, 193);
-            this.checkIL.Name = "checkIL";
-            this.checkIL.Size = new System.Drawing.Size(64, 17);
-            this.checkIL.TabIndex = 43;
-            this.checkIL.Text = "IL mode";
-            this.checkIL.UseVisualStyleBackColor = true;
+            this.buttonBomb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonBomb.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonBomb.Image = global::SuperMarisaWorldPrac.Properties.Resources.BombBlock;
+            this.buttonBomb.Location = new System.Drawing.Point(221, 201);
+            this.buttonBomb.Name = "buttonBomb";
+            this.buttonBomb.Size = new System.Drawing.Size(33, 33);
+            this.buttonBomb.TabIndex = 44;
+            this.buttonBomb.UseVisualStyleBackColor = true;
+            this.buttonBomb.Click += new System.EventHandler(this.buttonBomb_Click);
             // 
             // comboScoreRandomizer
             // 
@@ -689,6 +692,17 @@
             this.checkIframes.TabIndex = 25;
             this.checkIframes.Text = "Invincibility frames";
             this.checkIframes.UseVisualStyleBackColor = true;
+            // 
+            // checkIL
+            // 
+            this.checkIL.AutoSize = true;
+            this.checkIL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkIL.Location = new System.Drawing.Point(405, 298);
+            this.checkIL.Name = "checkIL";
+            this.checkIL.Size = new System.Drawing.Size(64, 17);
+            this.checkIL.TabIndex = 43;
+            this.checkIL.Text = "IL mode";
+            this.checkIL.UseVisualStyleBackColor = true;
             // 
             // menuStrip
             // 
@@ -735,7 +749,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(228, 301);
+            this.label6.Location = new System.Drawing.Point(227, 287);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(73, 15);
             this.label6.TabIndex = 35;
@@ -745,7 +759,7 @@
             // 
             this.labelTimerStage.AutoSize = true;
             this.labelTimerStage.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerStage.Location = new System.Drawing.Point(330, 302);
+            this.labelTimerStage.Location = new System.Drawing.Point(329, 288);
             this.labelTimerStage.Name = "labelTimerStage";
             this.labelTimerStage.Size = new System.Drawing.Size(62, 15);
             this.labelTimerStage.TabIndex = 37;
@@ -755,7 +769,7 @@
             // 
             this.labelTimerSaveState.AutoSize = true;
             this.labelTimerSaveState.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimerSaveState.Location = new System.Drawing.Point(330, 320);
+            this.labelTimerSaveState.Location = new System.Drawing.Point(329, 306);
             this.labelTimerSaveState.Name = "labelTimerSaveState";
             this.labelTimerSaveState.Size = new System.Drawing.Size(62, 15);
             this.labelTimerSaveState.TabIndex = 42;
@@ -765,22 +779,22 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(228, 320);
+            this.label10.Location = new System.Drawing.Point(227, 306);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(97, 15);
             this.label10.TabIndex = 41;
             this.label10.Text = "Save state timer:";
             // 
-            // buttonBomb
+            // runSpeedBar
             // 
-            this.buttonBomb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonBomb.Image = global::SuperMarisaWorldPrac.Properties.Resources.BombBlock;
-            this.buttonBomb.Location = new System.Drawing.Point(211, 78);
-            this.buttonBomb.Name = "buttonBomb";
-            this.buttonBomb.Size = new System.Drawing.Size(33, 33);
-            this.buttonBomb.TabIndex = 44;
-            this.buttonBomb.UseVisualStyleBackColor = true;
-            this.buttonBomb.Click += new System.EventHandler(this.buttonBomb_Click);
+            this.runSpeedBar.ForeColor = System.Drawing.Color.SeaGreen;
+            this.runSpeedBar.Location = new System.Drawing.Point(6, 27);
+            this.runSpeedBar.Maximum = 1875;
+            this.runSpeedBar.Name = "runSpeedBar";
+            this.runSpeedBar.Size = new System.Drawing.Size(47, 23);
+            this.runSpeedBar.Step = 1;
+            this.runSpeedBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.runSpeedBar.TabIndex = 14;
             // 
             // MainWindow
             // 
@@ -788,6 +802,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(493, 448);
             this.Controls.Add(this.labelTimerSaveState);
+            this.Controls.Add(this.checkIL);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.labelTimerStage);
             this.Controls.Add(this.label6);
@@ -800,7 +815,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainWindow";
-            this.Text = "SuperMarisaWorldPrac v1.7";
+            this.Text = "SuperMarisaWorldPrac v1.8";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.groupCoordinates.ResumeLayout(false);
@@ -884,6 +899,7 @@
         private System.Windows.Forms.Label labelJumpP;
         private System.Windows.Forms.CheckBox checkIL;
         private System.Windows.Forms.Button buttonBomb;
+        private System.Windows.Forms.ProgressBar runSpeedBar;
     }
 }
 

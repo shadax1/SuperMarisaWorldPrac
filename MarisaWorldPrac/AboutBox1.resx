@@ -137,14 +137,14 @@ If the tool isn't unlocking the save state feature when you are in a stage, try 
 
 'Freeze values' section will freeze values upon checking one of the checkboxes.
 'Stars', 'Time', 'Score' and 'Lives' will be frozen at the value specified in their respective textboxes below.
-'Power-up' will be frozen at whatever its value was upon checking its box while 'Infinite P-speed and flight' will always be set to 120 and 180 respectively, 'Invincibility frames' will give infinite invincibility to Marisa, 
+'Power-up' will be frozen at whatever its value was upon checking its box while 'Max P-speed and infinite flight' will always be set to 120 and 180 respectively, 'Invincibility frames' will give infinite invincibility to Marisa, 
 'SPREAD MY WINGS' attempts to mimic the very famous trick by locking Marisa animation to being airborne and 'Score randomizer' will randomize the score based on the selected mode in the dropwdown list.
 'Multiples of 10' will randomize the score with a value multiple of 10 between 0 and 300000 every 0.5s. 'Very random' will randomize the score with a value between 0 and 9999999 every 0.5s.
-'Respawn at stored coordinates after death' will force Marisa to respawn at the stored coordinates after respawning from a death.
 
-'P-speed' section displays Marisa's P-speed meter when she has her broom. From what I found, this value goes from 0 to 120 in increments of 2 on every frame.
+'Speed/P-speed/Rumia' section displays Marisa's running speed as well as a P-speed meter when she has her broom. From what I found, this value goes from 0 to 120 in increments of 2 on every frame.
 This will also display the meter value Marisa had as soon as she jumps to get an idea of how close/far Marisa was from reaching P-speed.
-Finally it also displays a meter showing how long Marisa will be able to fly up after jumping with P-speed. The value stored upon jumping is 180 and decreases by 1 every frame, meaning Marisa has 3 seconds of flight time.
+It also displays a meter showing how long Marisa will be able to fly up after jumping with P-speed. The value stored upon jumping is 180 and decreases by 1 every frame, meaning Marisa has 3 seconds of flight time.
+Finally, it will show how long the Rumia power-up lasts.
 
 Only version 1.05 is supported.</value>
   </data>
