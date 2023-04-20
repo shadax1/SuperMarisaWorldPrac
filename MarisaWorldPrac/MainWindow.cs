@@ -38,7 +38,7 @@ namespace SuperMarisaWorldPrac
         int[] STATE_OFFSET = { -0x30 };
         int[] SCREEN_ID_OFFSET = { 0x14 }, PIPE_OFFSET = { 0xADC }, X_OFFSET = { 0x1C }, Y_OFFSET = { 0x28 };
         int[] LIVES_OFFSET = { 0xA88 }, STARS_OFFSET = { 0xA8C }, TIME_OFFSET = { 0xA98 }, SCORE_OFFSET = { 0xA9C }, SCOREBONUS_OFFSET = { 0xE4 };
-        int[] ANIMATION_OFFSET = { 0x50 }, POWERUP_OFFSET = { 0x54 }, RUMIA_OFFSET = { 0x5C }, GROUNDED_FLAG_OFFSET = { 0x74 };
+        int[] ANIMATION_OFFSET = { 0x50 }, POWERUP_OFFSET = { 0x54 }, RUMIA_OFFSET = { 0x5C }, GROUNDTYPE_OFFSET = { 0x74 };
         int[] PSPEED_OFFSET = { 0x88 }, FLIGHT_OFFSET = { 0x90 }, IFRAMES_OFFSET = { 0x94 }, STOPWATCH_OFFSET = { 0x94C };
         int[] BOMBTIMER_OFFSET = { 0xB00 }, BOMB_OFFSET = { 0xB04 }, FPS_OFFSET = { 0xE80 }, RUNSPEED_OFFSET = { 0x64 };
         int[] STAGE_ID_OFFSET = { 0x80, 0x14, 0x68, 0x108, 0x47 }; //I believe in these offsets, hopefully no more pc shenanigans
@@ -51,12 +51,15 @@ namespace SuperMarisaWorldPrac
         const int IDLE = 0, RUN = 1, SLIDE = 3, JUMP = 4, DRILL = 5, BROOM_FLY = 8, BROOM_HOVER = 9, DEATH = 10;
         //bomb block constants
         const int BOMB_ACTIVE = 0, BOMB_INACTIVE = 1;
+        //ground type constants
+        const int AIR = 0, NORMAL_PLATFORM = 1, MOVING_PLATFORM = 2;
 
         int storedX = 1, storedY = 1, storedStars = 0, storedTime = 500, storedScore = 0, storedScreenID = 0;
+
         float XF = 0, YF = 0, storedXF = 1, storedYF = 1; //float coordinates
-        
+
         //a thread will read various values from the game and store them in these ints here
-        int X, Y, stars, time, score, powerup, screenID, pipe, state, stopwatch, bomb, rumia, fps;
+        int X, Y, stars, time, score, powerup, screenID, pipe, state, groundtype, stopwatch, bomb, rumia, fps;
 
         string stageID; //a thread will read the stage ID value and store it in this string here
         List<string> stageList = new List<string>();
@@ -306,7 +309,7 @@ namespace SuperMarisaWorldPrac
                                     }
                                 }
                             }
-                            else if (state == LOADING)
+                            else if (state == LOADING && !inReplayOrUserstage)
                                 if (pipe != 0)
                                     labelStatus.Text = "Marisa is in stage " + stageID + " screen " + screenID + " entering pipe " + pipe;
                         }
@@ -371,6 +374,7 @@ namespace SuperMarisaWorldPrac
                 buffer = pm.Read(FIRST_OFFSET, BOMB_OFFSET); bomb = BitConverter.ToInt32(buffer, 0);
                 buffer = pm.Read(FIRST_OFFSET, FPS_OFFSET); fps = BitConverter.ToInt32(buffer, 0);
                 buffer = pm.Read(FIRST_OFFSET, STATE_OFFSET); state = BitConverter.ToInt32(buffer, 0);
+                buffer = pm.Read(FIRST_OFFSET, GROUNDTYPE_OFFSET); groundtype = BitConverter.ToInt32(buffer, 0);
                 buffer = pm.Read(FIRST_OFFSET, SCREEN_ID_OFFSET); screenID = BitConverter.ToInt32(buffer, 0);
 
                 buffer = pm.Read(FIRST_OFFSET_STAGE_ID, STAGE_ID_OFFSET); stageID = Encoding.Default.GetString(buffer);
@@ -530,7 +534,13 @@ namespace SuperMarisaWorldPrac
                         speedF = BitConverter.ToSingle(speed, 0); //convert to float
                         if (speedF < 0) speedF = speedF * -10000;
                         else speedF = speedF * 10000;
-                        runSpeedBar.Value = (int)speedF;
+                        if ((int)speedF <= 1875)
+                            runSpeedBar.Value = (int)speedF;
+                            if ((int)speedF == 1875)
+                                runSpeedBar.ForeColor = Color.Blue;
+                            else
+                                runSpeedBar.ForeColor = Color.Green;
+
                     });
                 }
                 catch (Exception ex)
@@ -650,7 +660,7 @@ namespace SuperMarisaWorldPrac
                         Invoke((MethodInvoker)delegate //using this because thread
                         {
                             pSpeed = pm.Read(FIRST_OFFSET, PSPEED_OFFSET);
-                            groundedFlag = pm.Read(FIRST_OFFSET, GROUNDED_FLAG_OFFSET);
+                            groundedFlag = pm.Read(FIRST_OFFSET, GROUNDTYPE_OFFSET);
 
                             if (groundedFlag[0] == 0 && !flagStore) //if marisa has jumped and the flag is false
                             {
@@ -752,8 +762,8 @@ namespace SuperMarisaWorldPrac
                             if (checkIL.Checked) //IL mode - only restart the stage upon death
                             {
                                 pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(NEWSTAGE));
-                                if (stageID == "3-2-3" && screenID == 3) //mokou's room
-                                    pm.Write(FIRST_OFFSET, GROUNDED_FLAG_OFFSET, BitConverter.GetBytes(0)); //not grounded otherwise game crashes
+                                if (groundtype == MOVING_PLATFORM) //mokou's room
+                                    pm.Write(FIRST_OFFSET, GROUNDTYPE_OFFSET, BitConverter.GetBytes(AIR)); //not grounded otherwise game crashes
                                 pm.Write(FIRST_OFFSET, SCOREBONUS_OFFSET, BitConverter.GetBytes(1000));
                                 pm.Write(FIRST_OFFSET, POWERUP_OFFSET, BitConverter.GetBytes(MARISA));
                                 pm.Write(FIRST_OFFSET, STOPWATCH_OFFSET, BitConverter.GetBytes(0));
@@ -1139,13 +1149,10 @@ namespace SuperMarisaWorldPrac
                      (stageID == "5-2-4" && screenID == 3) || //yuyuko's room
                      (stageID == "7-2-2" && screenID == 1))   //yukari's room
                 Thread.Sleep(1000); //loading values in these rooms require a longer sleep
-            else if (stageID == "3-2-3" && screenID == 3) //mokou's room
-            {
-                Thread.Sleep(200);
-                pm.Write(FIRST_OFFSET, GROUNDED_FLAG_OFFSET, BitConverter.GetBytes(0)); //not grounded otherwise game crashes
-            }
             else //regular stage - regular sleep
                 Thread.Sleep(200);
+            if (groundtype == MOVING_PLATFORM) //if marisa on a moving platform
+                pm.Write(FIRST_OFFSET, GROUNDTYPE_OFFSET, BitConverter.GetBytes(AIR)); //set ground type to air (if save state was grounded, it will immediately be set to 1 by the game)
             pm.Write(FIRST_OFFSET, SCREEN_ID_OFFSET, BitConverter.GetBytes(storedScreenID));
             pm.Write(FIRST_OFFSET, STATE_OFFSET, BitConverter.GetBytes(PLAYING));
             pm.Write(FIRST_OFFSET, X_OFFSET, BitConverter.GetBytes(storedX));
@@ -1437,6 +1444,11 @@ namespace SuperMarisaWorldPrac
             HotkeyDialog hd = new HotkeyDialog();
             hd.ShowDialog();
             LoadHotkeys();
+        }
+
+        private void applicationFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("explorer.exe", configpath);
         }
 
         private void helpAboutToolStripMenuItem_Click(object sender, EventArgs e)

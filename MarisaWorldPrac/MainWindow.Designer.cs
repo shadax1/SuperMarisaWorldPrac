@@ -57,6 +57,7 @@
             this.buttonSave = new System.Windows.Forms.Button();
             this.comboSaves = new System.Windows.Forms.ComboBox();
             this.groupPspeed = new System.Windows.Forms.GroupBox();
+            this.runSpeedBar = new System.Windows.Forms.ProgressBar();
             this.labelFlight = new System.Windows.Forms.Label();
             this.flightBar = new System.Windows.Forms.ProgressBar();
             this.labelJumpP = new System.Windows.Forms.Label();
@@ -82,6 +83,7 @@
             this.checkIL = new System.Windows.Forms.CheckBox();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.applicationFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpAboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupSaves = new System.Windows.Forms.GroupBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -89,7 +91,6 @@
             this.labelTimerSaveState = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.runSpeedBar = new System.Windows.Forms.ProgressBar();
             this.groupCoordinates.SuspendLayout();
             this.groupPspeed.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -425,6 +426,17 @@
             this.groupPspeed.TabStop = false;
             this.groupPspeed.Text = "Speed/P-speed/Rumia";
             // 
+            // runSpeedBar
+            // 
+            this.runSpeedBar.ForeColor = System.Drawing.Color.Green;
+            this.runSpeedBar.Location = new System.Drawing.Point(6, 27);
+            this.runSpeedBar.Maximum = 1875;
+            this.runSpeedBar.Name = "runSpeedBar";
+            this.runSpeedBar.Size = new System.Drawing.Size(47, 23);
+            this.runSpeedBar.Step = 1;
+            this.runSpeedBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.runSpeedBar.TabIndex = 14;
+            // 
             // labelFlight
             // 
             this.labelFlight.AutoSize = true;
@@ -708,6 +720,7 @@
             // 
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.settingsToolStripMenuItem,
+            this.applicationFolderToolStripMenuItem,
             this.helpAboutToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
@@ -721,6 +734,13 @@
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
             this.settingsToolStripMenuItem.Text = "Hotkeys";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            // 
+            // applicationFolderToolStripMenuItem
+            // 
+            this.applicationFolderToolStripMenuItem.Name = "applicationFolderToolStripMenuItem";
+            this.applicationFolderToolStripMenuItem.Size = new System.Drawing.Size(114, 20);
+            this.applicationFolderToolStripMenuItem.Text = "Application folder";
+            this.applicationFolderToolStripMenuItem.Click += new System.EventHandler(this.applicationFolderToolStripMenuItem_Click);
             // 
             // helpAboutToolStripMenuItem
             // 
@@ -784,17 +804,6 @@
             this.label10.Size = new System.Drawing.Size(97, 15);
             this.label10.TabIndex = 41;
             this.label10.Text = "Save state timer:";
-            // 
-            // runSpeedBar
-            // 
-            this.runSpeedBar.ForeColor = System.Drawing.Color.SeaGreen;
-            this.runSpeedBar.Location = new System.Drawing.Point(6, 27);
-            this.runSpeedBar.Maximum = 1875;
-            this.runSpeedBar.Name = "runSpeedBar";
-            this.runSpeedBar.Size = new System.Drawing.Size(47, 23);
-            this.runSpeedBar.Step = 1;
-            this.runSpeedBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.runSpeedBar.TabIndex = 14;
             // 
             // MainWindow
             // 
@@ -900,6 +909,7 @@
         private System.Windows.Forms.CheckBox checkIL;
         private System.Windows.Forms.Button buttonBomb;
         private System.Windows.Forms.ProgressBar runSpeedBar;
+        private System.Windows.Forms.ToolStripMenuItem applicationFolderToolStripMenuItem;
     }
 }
 

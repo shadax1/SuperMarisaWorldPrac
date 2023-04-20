@@ -130,7 +130,7 @@
         </CheatEntry>
         <CheatEntry>
           <ID>108</ID>
-          <Description>"grounded (0 no - 1 yes - 2 mokou platform - 3 drill)"</Description>
+          <Description>"ground type (0 air - 1 normal platform - 2 moving platform - 3 drill)"</Description>
           <Color>FF0080</Color>
           <VariableType>Byte</VariableType>
           <Address>"SuperMarisaWorld.exe"+00155438</Address>

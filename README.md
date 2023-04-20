@@ -1,7 +1,7 @@
 # SuperMarisaWorldPrac
 Download the latest release from [here](https://github.com/shadax1/SuperMarisaWorldPrac/releases) and add the .exe file into your Super Marisa World game folder. Start the game followed by the practice tool and you will be good to go.
 
-**Note:** your game must be on version 1.05
+**Note:** your game must be on version 1.05. This was tested (and works) on both Windows 7 & 10.
 
 ![demo pic](https://raw.githubusercontent.com/shadax1/SuperMarisaWorldPrac/master/misc/demo%20pic.png)
 
@@ -16,7 +16,7 @@ ANIMATION_OFFSET = { 0x50 }
 POWERUP_OFFSET = { 0x54 }
 RUMIA_OFFSET = { 0x5C }
 RUNSPEED_OFFSET = { 0x64 }
-GROUNDED_FLAG_OFFSET = { 0x74 }
+GROUNDTYPE_OFFSET = { 0x74 }
 PSPEED_OFFSET = { 0x88 }
 FLIGHT_OFFSET = { 0x90 }
 IFRAMES_OFFSET = { 0x94 }
@@ -46,4 +46,4 @@ You can see that on the title screen.
 
 ![game version](https://raw.githubusercontent.com/shadax1/SuperMarisaWorldPrac/master/misc/game%20version.png)
 
-If your game is on the correct version but the tool still doesn't work, download [this test application](https://github.com/shadax1/SuperMarisaWorldPrac/blob/master/misc/TestSuperMarisaWorldMap.exe), launch it when the game is open on the world map, then take a screenshot and send it over to me either on Twitter [@shadax1](https://twitter.com/Shadax1) or on Discord to Shadax#6921
+If your game is on the correct version but the tool still doesn't work, download [this test application](https://github.com/shadax1/SuperMarisaWorldPrac/raw/master/misc/TestSuperMarisaWorldMap.exe), launch it when the game is open on the world map, then take a screenshot and send it over to me either on Twitter [@shadax1](https://twitter.com/Shadax1) or on Discord to Shadax#6921
