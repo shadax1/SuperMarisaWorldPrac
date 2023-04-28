@@ -1,4 +1,6 @@
 # SuperMarisaWorldPrac
+
+## How to use
 Download the latest release from [here](https://github.com/shadax1/SuperMarisaWorldPrac/releases) and add the .exe file into your Super Marisa World game folder. Start the game followed by the practice tool and you will be good to go.
 
 **Note:** your game must be on version 1.05. This was tested (and works) on both Windows 7 & 10.
@@ -41,7 +43,7 @@ STAGE_ID_OFFSET = { 0x80, 0x14, 0x68, 0x108, 0x47 }
 The cheat table I used can be found [here](https://github.com/shadax1/SuperMarisaWorldPrac/blob/master/misc/SuperMarisaWorld105.CT).
 
 ## Troubleshooting
-If your the practice tool isn't working properly, the first thing to check is if your game is on version 1.05.
+If the practice tool isn't working properly, the first thing to check is if your game is on version 1.05.
 You can see that on the title screen.
 
 ![game version](https://raw.githubusercontent.com/shadax1/SuperMarisaWorldPrac/master/misc/game%20version.png)
