@@ -120,12 +120,22 @@
         </CheatEntry>
         <CheatEntry>
           <ID>227</ID>
-          <Description>"running speed (max is 0.1875)"</Description>
+          <Description>"x speed (max left -0.1875 - max right 0.1875)"</Description>
           <Color>FF0080</Color>
           <VariableType>Float</VariableType>
           <Address>"SuperMarisaWorld.exe"+00155438</Address>
           <Offsets>
             <Offset>64</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>236</ID>
+          <Description>"y speed (max down -0.375 -&gt; drill -0.5 - max up 0.28125)"</Description>
+          <Color>FF0080</Color>
+          <VariableType>Float</VariableType>
+          <Address>"SuperMarisaWorld.exe"+00155438</Address>
+          <Offsets>
+            <Offset>68</Offset>
           </Offsets>
         </CheatEntry>
         <CheatEntry>
