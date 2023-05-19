@@ -1,13 +1,13 @@
 # SuperMarisaWorldPrac
 
-Speedrun practice tool for Super Marisa World heavily based off mpu's [RKS/F practice tool](https://github.com/mpumpu/rkshacks).
+Speedrun practice tool for Super Marisa World. This project was heavily based off mpu's [RKS/F practice tool](https://github.com/mpumpu/rkshacks).
+
+![demo pic](https://raw.githubusercontent.com/shadax1/SuperMarisaWorldPrac/master/misc/demo%20pic.png)
 
 ## How to use
 Download the latest release from [here](https://github.com/shadax1/SuperMarisaWorldPrac/releases) and add the .exe file into your Super Marisa World game folder. Start the game followed by the practice tool and you will be good to go.
 
 **Note:** your game must be on version 1.05. This was tested (and works) on both Windows 7 & 10.
-
-![demo pic](https://raw.githubusercontent.com/shadax1/SuperMarisaWorldPrac/master/misc/demo%20pic.png)
 
 ## Pointer addresses and offsets used
 Using the pointer address `"SuperMarisaWorld.exe"+00155438` found with Cheat Engine, the following offsets are used to do various reads and writes:
