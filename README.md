@@ -1,6 +1,6 @@
 # SuperMarisaWorldPrac
 
-Speedrun practice tool for Super Marisa World. This project was heavily based off mpu's [RKS/F practice tool](https://github.com/mpumpu/rkshacks).
+Speedrun practice tool for Super Marisa World. This project is heavily based off mpu's [RKS/F practice tool](https://github.com/mpumpu/rkshacks).
 
 ![demo pic](https://raw.githubusercontent.com/shadax1/SuperMarisaWorldPrac/master/misc/demo%20pic.png)
 
