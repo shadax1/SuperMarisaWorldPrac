@@ -1,5 +1,7 @@
 # SuperMarisaWorldPrac
 
+Speedrun practice tool for Super Marisa World heavily based off mpu's [RKS/F practice tool](https://github.com/mpumpu/rkshacks).
+
 ## How to use
 Download the latest release from [here](https://github.com/shadax1/SuperMarisaWorldPrac/releases) and add the .exe file into your Super Marisa World game folder. Start the game followed by the practice tool and you will be good to go.
 
